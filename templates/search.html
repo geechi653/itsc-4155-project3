@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block title %}Search - Weather App{% endblock %} 
+{% block header %}Search Weather{% endblock %}
 {% block content %}
 <h1>Search Weather</h1>
 <form method="POST">
@@ -10,9 +12,10 @@
 
 {% if weather %}
     <h2>Weather in {{ city }}</h2>
-    <p>Temperature: {{ weather['main']['temp'] }} °F</p>
-    <p>Weather: {{ weather['weather'][0]['description'] }}</p>
-    <p>Humidity: {{ weather['main']['humidity'] }}%</p>
+    <p>Current Temperature: {{ weather['temperature'] }} °F</p>
+    <p>High Temperature: {{ weather['temp_max'] }} °F</p>
+    <p>Low Temperature: {{ weather['temp_min'] }} °F</p>    
+    <p>Humidity: {{ weather['humidity'] }}%</p>
     <p>Wind Speed: {{ weather['wind']['speed'] }} m/s</p>
 {% elif forecast is none %}
     <p>City not found. Please enter a valid city name.</p>

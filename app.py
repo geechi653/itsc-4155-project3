@@ -16,7 +16,10 @@ def search():
     if request.method == 'POST':
         city = request.form['city']
         weather_data = get_weather(city)
-        return render_template('search.html', weather=weather_data, city=city)
+        if weather_data is not None:
+            return render_template('search.html', weather=weather_data, city=city)
+        else:
+            return render_template('search.html', city=city, error="City not found.")
     return render_template('search.html')
 
 @app.route('/forecast', methods=['GET', 'POST'])
@@ -35,8 +38,16 @@ def get_weather(city):
         response.raise_for_status()
         data = response.json()
         if data.get('cod') != 200:
-            return None  # Return None if city is not found
-        return data
+            return None
+        weather_info = {
+            'temperature': data['main']['temp'],
+            'temp_min': data['main']['temp_min'],
+            'temp_max': data['main']['temp_max'],
+            'humidity': data['main']['humidity'],
+            'weather_desc': data['weather'][0]['description'],
+            'wind': data['wind']
+        }  
+        return weather_info
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:
