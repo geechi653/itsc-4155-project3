@@ -4,7 +4,7 @@
 <h1>Search Weather</h1>
 <form method="POST">
     <label for="city">City:</label>
-    <input type="text" id="city" name="city" required>
+    <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
     <button type="submit">Get Weather</button>
 </form>
 
@@ -14,6 +14,8 @@
     <p>Weather: {{ weather['weather'][0]['description'] }}</p>
     <p>Humidity: {{ weather['main']['humidity'] }}%</p>
     <p>Wind Speed: {{ weather['wind']['speed'] }} m/s</p>
+{% elif forecast is none %}
+    <p>City not found. Please enter a valid city name.</p>
 {% else %}
     <p>Weather data not found. Please try again.</p>
 {% endif %}

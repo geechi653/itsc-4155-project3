@@ -33,7 +33,10 @@ def get_weather(city):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        if data.get('cod') != 200:
+            return None  # Return None if city is not found
+        return data
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:
@@ -47,6 +50,8 @@ def get_five_day_forecast(city):
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
+        if data.get('cod') != '200':
+            return None
         forecast = process_five_day_forecast(data)
         return forecast
     except requests.exceptions.HTTPError as http_err:
