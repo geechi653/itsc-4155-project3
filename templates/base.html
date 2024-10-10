@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block title %}Weather App{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('search') }}">Search</a></li>
+            <li><a href="{{ url_for('forecast') }}">Forecast</a></li>
+            <li><a href="{{ url_for('map') }}">Map</a></li>
+        </ul>
+    </nav>
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Weather App</h1>
+            <p>{% block subtitle%}Get real-time Weather and Forecasts for your city!{% endblock %}</p>
+        </div>
+    </header>    
+    <div class="wrapper">
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Weather App. All rights reserved.</p>
+    </footer>   
+</body>
+</html>
