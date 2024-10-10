@@ -4,15 +4,18 @@
 {% block header %}Search Weather{% endblock %}
 {% block content %}
 
+<div class="search-container">
     <h1>Search Weather</h1>
     <p><strong> City name to get Current Weather:</strong></p>
+
     <form method="POST">
+        <div class= "form-group">
             <label for="city">City:</label>
             <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
-            <button type="submit">Get Weather</button>
+        </div>
+        <button type="submit">Get Weather</button>
     </form>
 
-<div class="forecast-container">
     {% if weather %}
     <div>
         <h2>Weather in {{ city }}</h2>
@@ -23,7 +26,6 @@
         <p>Wind Speed: {{ weather['wind']['speed'] }} m/s</p>
     </div>
     {% elif forecast is none %}
-    <p class="error">City not found. Please enter a valid city name.</p>
-    {% endif %}
-</div> 
+    <p>City not found. Please enter a valid city name.</p>
+{% endif %}
 {% endblock %}
