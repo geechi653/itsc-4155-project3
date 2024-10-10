@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
@@ -47,14 +47,21 @@ nav ul li a:hover {
 
 h1 {
     color: #ffffff;
+    text-align: center;
 }
 
 form {
     margin: 30px 0;
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
 }
 
 form label, form input, form button {
-    display: block;
+    width: 100%;
+    max-width: 500px; 
+    text-align: center; 
     margin: 10px 0;
 }
 
@@ -62,6 +69,7 @@ form input {
     padding: 8px;
     width: 100%;
     box-sizing: border-box;
+    
 }
 
 form button {
@@ -74,6 +82,24 @@ form button {
 
 form button:hover {
     background-color: #555;
+}
+
+
+
+.search-container{
+    width: 100%; 
+    max-width: 1000px; 
+    margin: 20px auto; 
+    padding: 100px;
+    border-radius: 8px;
+    text-align: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.search-container h1{
+    color: #333;
+    margin-bottom: 10px;
 }
 
 .forecast-container {
