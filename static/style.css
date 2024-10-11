@@ -50,6 +50,13 @@ h1 {
     text-align: center;
 }
 
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
 form {
     margin: 30px 0;
     display: flex;
@@ -86,10 +93,9 @@ form button:hover {
 
 
 
-.search-container{
-    width: 100%; 
-    max-width: 1000px; 
-    margin: 20px auto; 
+.search-container{   
+    max-width: 500px; 
+    margin: 20px 20px; 
     padding: 100px;
     border-radius: 8px;
     text-align: center;
@@ -151,3 +157,41 @@ footer {
     border-radius: 10px;
     max-width: 600px;
 }
+
+.weather-update-box {
+    border: 2px solid #333; /* Border around the box */
+    padding: 10px 10px; /* Space inside the box */
+    max-width: 400px; /* Limit the width */
+    margin: 10px auto; /* Center the box horizontally */
+    text-align: center; /* Center the text inside */
+    background-color: #f9f9f9; /* Background color */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.features {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.features ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.features ul li {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.features ul li i {
+    margin-right: 10px;
+    color: #333;
+}
+
+
+
