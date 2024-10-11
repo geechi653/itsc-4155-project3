@@ -16,7 +16,10 @@ def search():
     if request.method == 'POST':
         city = request.form['city']
         weather_data = get_weather(city)
-        return render_template('search.html', weather=weather_data, city=city)
+        if weather_data is not None:
+            return render_template('search.html', weather=weather_data, city=city)
+        else:
+            return render_template('search.html', city=city, error="City not found.")
     return render_template('search.html')
 
 @app.route('/forecast', methods=['GET', 'POST'])
@@ -33,7 +36,19 @@ def get_weather(city):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        if data.get('cod') != 200:
+            return None
+        weather_info = {
+            'temperature': data['main']['temp'],
+            'temp_min': data['main']['temp_min'],
+            'temp_max': data['main']['temp_max'],
+            'humidity': data['main']['humidity'],
+            'weather_desc': data['weather'][0]['description'],
+            'wind': data['wind'],
+            'icon' : data['weather'][0]['icon']
+        }  
+        return weather_info
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except Exception as err:
@@ -47,6 +62,8 @@ def get_five_day_forecast(city):
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
+        if data.get('cod') != '200':
+            return None
         forecast = process_five_day_forecast(data)
         return forecast
     except requests.exceptions.HTTPError as http_err:
@@ -72,13 +89,15 @@ def process_five_day_forecast(data):
                 'temperatures': [],
                 'weather_descriptions': [],
                 'humidity': [],
-                'wind_speeds': []
+                'wind_speeds': [],
+                'icons': []
             }
         
         daily_forecast[date_str]['temperatures'].append(item['main']['temp'])
         daily_forecast[date_str]['weather_descriptions'].append(item['weather'][0]['description'])
         daily_forecast[date_str]['humidity'].append(item['main']['humidity'])
         daily_forecast[date_str]['wind_speeds'].append(item['wind']['speed'])
+        daily_forecast[date_str]['icons'].append(item['weather'][0]['icon'])
     
     # Calculates the daily averages and most common descriptions
     forecast_summary = []
@@ -87,14 +106,16 @@ def process_five_day_forecast(data):
         avg_humidity = sum(values['humidity']) / len(values['humidity'])
         avg_wind_speed = sum(values['wind_speeds']) / len(values['wind_speeds'])
         common_description = max(set(values['weather_descriptions']), key=values['weather_descriptions'].count)
-        
+        common_icon = values['icons'][0]
+
         forecast_summary.append({
             'date': date,
             'day_of_week': values['day_of_week'],  # Add day of the week to the summary
             'avg_temp': avg_temp,
             'avg_humidity': avg_humidity,
             'avg_wind_speed': avg_wind_speed,
-            'description': common_description
+            'description': common_description,
+            'icon': common_icon
         })
     
     return forecast_summary

@@ -4,7 +4,7 @@
 <h1>5-Day Weather Forecast</h1>
 <form method="POST">
     <label for="city">City:</label>
-    <input type="text" id="city" name="city" required>
+    <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
     <button type="submit">Get Forecast</button>
 </form>
 
@@ -15,13 +15,28 @@
             <div class="forecast-day">
                 <p><strong>Date:</strong> {{ day.date }} ({{ day.day_of_week }})</p>
                 <p><strong>Average Temperature:</strong> {{ day.avg_temp | round(1) }} °F</p>
-                <p><strong>Weather:</strong> {{ day.description }}</p>
+                <p><strong>Weather:</strong> 
+                    {% if "clear" in day.description.lower() %}
+                        <i class="fas fa-sun"></i>
+                    {% elif "cloud" in day.description.lower() %}
+                        <i class="fas fa-cloud"></i>
+                    {% elif "rain" in day.description.lower() %}
+                        <i class="fas fa-cloud-showers-heavy"></i>
+                    {% elif "snow" in day.description.lower() %}
+                        <i class="fas fa-snowflake"></i>
+                    {% else %}
+                        <i class="fas fa-question-circle"></i>
+                    {% endif %}
+                    {{ day.description }}
+                </p>
                 <p><strong>Average Humidity:</strong> {{ day.avg_humidity | round(1) }}%</p>
                 <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed | round(1) }} m/s</p>
             </div>
         {% endfor %}
     </div>
+{% elif forecast is none %}
+    <p>City not found. Please enter a valid city name.</p>  
 {% else %}
-    <p>No forecast data available. Please enter a city to see the 5-day forecast.</p>
+    <p>Please enter a city to see the 5-day forecast.</p>
 {% endif %}
 {% endblock %}
