@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
-
-{% block title %}Search - Weather App{% endblock %} 
+{% block title %}Search - Weather App{% endblock %}
 {% block header %}Search Weather{% endblock %}
 {% block content %}
-
 <div class="search-container">
     <h1>Search Weather</h1>
     <p><strong>City name to get Current Weather:</strong></p>
-
     <form method="POST">
         <div class="form-group">
             <label for="city">City:</label>
@@ -15,19 +12,20 @@
         </div>
         <button type="submit">Get Weather</button>
     </form>
-
+    
     {% if weather %}
-    <div>
+    <div class="weather-info">
         <h2>Weather in {{ city }}</h2>
-        <p>Current Temperature: {{ weather['temperature'] }} °F</p>
-        <p>High Temperature: {{ weather['temp_max'] }} °F</p>
-        <p>Low Temperature: {{ weather['temp_min'] }} °F</p>    
-        <p>Humidity: {{ weather['humidity'] }}%</p>
-        <p>Wind Speed: {{ weather['wind']['speed'] }} m/s</p>
+        <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon" class="weather-icon">
+        <p>Current Temperature: {{ weather.temperature }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+        <p>High Temperature: {{ weather.temp_max }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+        <p>Low Temperature: {{ weather.temp_min }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+        <p>Humidity: {{ weather.humidity }}%</p>
+        <p>Wind Speed: {{ weather.wind.speed }} m/s</p>
+        <p>Description: {{ weather.weather_desc|title }}</p>
     </div>
     {% elif error %}
-    <p>{{ error }}</p>
+    <p class="error-message">{{ error }}</p>
     {% endif %}
 </div>
-
 {% endblock %}

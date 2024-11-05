@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+{% endblock %}
+
+{% block content %}
+<h1>Temperature Map</h1>
+<div id="map" style="height: 500px;"></div>
+
+<script>
+    var map = L.map('map').setView([0, 0], 2);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker;
+
+    function getCurrentUnit() {
+        return document.querySelector('input[name="globalUnit"]:checked').value;
+    }
+
+    map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        const currentUnit = getCurrentUnit();
+        
+        fetch(`/get_temperature_data?lat=${lat}&lon=${lng}&unit=${currentUnit}`)
+            .then(response => response.json())
+            .then(data => {
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                
+                const unitSymbol = currentUnit === 'imperial' ? '°F' : '°C';
+                
+                marker = L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="text-align: center;">
+                            <img src="http://openweathermap.org/img/w/${data.icon}.png" alt="Weather icon"><br>
+                            Temperature: ${data.temperature}${unitSymbol}<br>
+                            ${data.description}
+                        </div>
+                    `)
+                    .openPopup();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.querySelectorAll('input[name="globalUnit"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (marker) {
+                const latlng = marker.getLatLng();
+                fetch(`/get_temperature_data?lat=${latlng.lat}&lon=${latlng.lng}&unit=${this.value}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const unitSymbol = this.value === 'imperial' ? '°F' : '°C';
+                        marker.setPopupContent(`
+                            <div style="text-align: center;">
+                                <img src="http://openweathermap.org/img/w/${data.icon}.png" alt="Weather icon"><br>
+                                Temperature: ${data.temperature}${unitSymbol}<br>
+                                ${data.description}
+                            </div>
+                        `);
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    });
+</script>
+
+<div class="navigation" style="margin-top: 20px; text-align: center;">
+    <a href="{{ url_for('home') }}" style="margin: 0 10px; text-decoration: none; color: #007bff;">Home</a> |
+    <a href="{{ url_for('search') }}" style="margin: 0 10px; text-decoration: none; color: #007bff;">Search</a> |
+    <a href="{{ url_for('forecast') }}" style="margin: 0 10px; text-decoration: none; color: #007bff;">Forecast</a>
+</div>
+{% endblock %}
