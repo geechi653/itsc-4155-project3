@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>{% block title %}Weather App{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block head %}{% endblock %}
 </head>
 <body>
     <nav>
@@ -13,22 +12,61 @@
             <li><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('search') }}">Search</a></li>
             <li><a href="{{ url_for('forecast') }}">Forecast</a></li>
+            <li><a href="{{ url_for('map') }}">Map</a></li>
+            <div class="unit-toggle">
+                <label><input type="radio" name="globalUnit" value="imperial" {% if unit == 'imperial' %}checked{% endif %}> °F</label>
+                <label><input type="radio" name="globalUnit" value="metric" {% if unit == 'metric' %}checked{% endif %}> °C</label>
+            </div>
         </ul>
     </nav>
-    <header class="hero">
+
+    <div class="hero">
         <div class="hero-content">
             <h1>Weather App</h1>
-            <p>{% block subtitle%}Get real-time Weather and Forecasts for your city!{% endblock %}</p>
+            {% block subtitle %}Get real-time Weather and Forecasts for your city!{% endblock %}
         </div>
-    </header>    
+    </div>
+
     <div class="wrapper">
         <div class="content">
             {% block content %}{% endblock %}
         </div>
     </div>
-<footer>
-    <p>&copy; 2024 Weather App. All rights reserved.</p>
-</footer>   
-</body>
 
-</html>
+    <footer>
+        © 2024 Weather App. All rights reserved.
+    </footer>
+
+    <script>
+        
+        let globalUnit = localStorage.getItem('weatherUnit') || 'imperial';
+        
+        
+        document.querySelectorAll('input[name="globalUnit"]').forEach(radio => {
+            if(radio.value === globalUnit) {
+                radio.checked = true;
+            }
+            radio.addEventListener('change', function() {
+                globalUnit = this.value;
+                localStorage.setItem('weatherUnit', globalUnit);
+                
+                
+                let url = new URL(window.location.href);
+                url.searchParams.set('unit', globalUnit);
+                window.location.href = url.toString();
+            });
+        });
+
+        
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const unitInput = document.createElement('input');
+                unitInput.type = 'hidden';
+                unitInput.name = 'unit';
+                unitInput.value = globalUnit;
+                this.appendChild(unitInput);
+            });
+        });
+    </script>
+</body>
+</html

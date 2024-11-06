@@ -1,38 +1,96 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import requests
 from datetime import datetime
+from functools import wraps
+from time import time
+from collections import defaultdict
 
 app = Flask(__name__)
 
 # OpenWeatherMap API key
 API_KEY = '983e0f4c72e18f96cfe6e16ac315c528'
 
+# Rate limiting decorator
+def rate_limit(limit=60, per=60):
+    rates = defaultdict(lambda: [0, time()])
+    
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            now = time()
+            rates[f.__name__][0] += 1
+            
+            if now - rates[f.__name__][1] > per:
+                rates[f.__name__] = [1, now]
+            elif rates[f.__name__][0] > limit:
+                return jsonify({'error': 'Rate limit exceeded'}), 429
+                
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
 @app.route('/')
 def home():
-    return render_template('home.html')
+    unit = request.args.get('unit', 'imperial')
+    return render_template('home.html', unit=unit)
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
         city = request.form['city']
-        weather_data = get_weather(city)
+        unit = request.form.get('unit', 'imperial')
+        weather_data = get_weather(city, unit)
         if weather_data is not None:
-            return render_template('search.html', weather=weather_data, city=city)
+            return render_template('search.html', weather=weather_data, city=city, unit=unit)
         else:
-            return render_template('search.html', city=city, error="City not found.")
-    return render_template('search.html')
+            return render_template('search.html', city=city, error="City not found.", unit=unit)
+    return render_template('search.html', unit=request.args.get('unit', 'imperial'))
 
 @app.route('/forecast', methods=['GET', 'POST'])
 def forecast():
     if request.method == 'POST':
         city = request.form['city']
-        forecast_data = get_five_day_forecast(city)
-        return render_template('forecast.html', forecast=forecast_data, city=city)
-    return render_template('forecast.html')
+        unit = request.form.get('unit', 'imperial')
+        forecast_data = get_five_day_forecast(city, unit)
+        return render_template('forecast.html', forecast=forecast_data, city=city, unit=unit)
+    return render_template('forecast.html', unit=request.args.get('unit', 'imperial'))
 
-def get_weather(city):
+@app.route('/map')
+def map():
+    unit = request.args.get('unit', 'imperial')
+    return render_template('map.html', unit=unit)
+
+@app.route('/get_temperature_data')
+@rate_limit()
+def get_temperature_data():
+    lat = request.args.get('lat', 0)
+    lon = request.args.get('lon', 0)
+    unit = request.args.get('unit', 'imperial')
+    url = f'http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units={unit}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return jsonify({
+            'temperature': data['main']['temp'],
+            'unit': '°F' if unit == 'imperial' else '°C',
+            'icon': data['weather'][0]['icon'],
+            'description': data['weather'][0]['description']
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def get_weather(city, unit='imperial'):
     """Get current weather data using city name."""
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=imperial'
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units={unit}'
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -46,7 +104,8 @@ def get_weather(city):
             'humidity': data['main']['humidity'],
             'weather_desc': data['weather'][0]['description'],
             'wind': data['wind'],
-            'icon' : data['weather'][0]['icon']
+            'icon': data['weather'][0]['icon'],
+            'unit': '°F' if unit == 'imperial' else '°C'
         }  
         return weather_info
     except requests.exceptions.HTTPError as http_err:
@@ -55,16 +114,16 @@ def get_weather(city):
         print(f"Other error occurred: {err}")
     return None
 
-def get_five_day_forecast(city):
+def get_five_day_forecast(city, unit='imperial'):
     """Get 5-day weather forecast data using city name."""
-    url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units=imperial'
+    url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units={unit}'
     try:
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
         if data.get('cod') != '200':
             return None
-        forecast = process_five_day_forecast(data)
+        forecast = process_five_day_forecast(data, unit)
         return forecast
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
@@ -72,17 +131,15 @@ def get_five_day_forecast(city):
         print(f"Other error occurred: {err}")
     return None
 
-def process_five_day_forecast(data):
+def process_five_day_forecast(data, unit='imperial'):
     """Process the 5-day forecast data to group by day and get average temperature."""
     daily_forecast = {}
     
     for item in data['list']:
-        # Conversion to get the day of the week displayed
         date_time = datetime.utcfromtimestamp(item['dt'])
         date_str = date_time.strftime('%Y-%m-%d')
         day_of_week = date_time.strftime('%A')  
         
-        # Initializes a new entry for each day
         if date_str not in daily_forecast:
             daily_forecast[date_str] = {
                 'day_of_week': day_of_week,
@@ -99,15 +156,14 @@ def process_five_day_forecast(data):
         daily_forecast[date_str]['wind_speeds'].append(item['wind']['speed'])
         daily_forecast[date_str]['icons'].append(item['weather'][0]['icon'])
     
-    # Calculates the daily averages and most common descriptions
     forecast_summary = []
     for date, values in daily_forecast.items():
         avg_temp = sum(values['temperatures']) / len(values['temperatures'])
         avg_humidity = sum(values['humidity']) / len(values['humidity'])
         avg_wind_speed = sum(values['wind_speeds']) / len(values['wind_speeds'])
         common_description = max(set(values['weather_descriptions']), key=values['weather_descriptions'].count)
-        common_icon = values['icons'][0]
-
+        common_icon = max(set(values['icons']), key=values['icons'].count)
+        
         forecast_summary.append({
             'date': date,
             'day_of_week': values['day_of_week'],
@@ -115,9 +171,11 @@ def process_five_day_forecast(data):
             'avg_humidity': avg_humidity,
             'avg_wind_speed': avg_wind_speed,
             'description': common_description,
-            'icon': common_icon
+            'icon': common_icon,
+            'unit': '°F' if unit == 'imperial' else '°C'
         })
     
     return forecast_summary
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8080)

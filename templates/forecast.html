@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <h1>5-Day Weather Forecast</h1>
 <form method="POST">
-    <label for="city">City:</label>
-    <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
+    <div class="form-group">
+        <label for="city">City:</label>
+        <input type="text" name="city" id="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
+    </div>
     <button type="submit">Get Forecast</button>
 </form>
 
@@ -12,31 +13,20 @@
     <h2>Weather Forecast for {{ city }}</h2>
     <div class="forecast-container">
         {% for day in forecast %}
-            <div class="forecast-day">
-                <p><strong>Date:</strong> {{ day.date }} ({{ day.day_of_week }})</p>
-                <p><strong>Average Temperature:</strong> {{ day.avg_temp | round(1) }} °F</p>
-                <p><strong>Weather:</strong> 
-                    {% if "clear" in day.description.lower() %}
-                        <i class="fas fa-sun"></i>
-                    {% elif "cloud" in day.description.lower() %}
-                        <i class="fas fa-cloud"></i>
-                    {% elif "rain" in day.description.lower() %}
-                        <i class="fas fa-cloud-showers-heavy"></i>
-                    {% elif "snow" in day.description.lower() %}
-                        <i class="fas fa-snowflake"></i>
-                    {% else %}
-                        <i class="fas fa-question-circle"></i>
-                    {% endif %}
-                    {{ day.description }}
-                </p>
-                <p><strong>Average Humidity:</strong> {{ day.avg_humidity | round(1) }}%</p>
-                <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed | round(1) }} m/s</p>
-            </div>
+        <div class="forecast-day">
+            <h3>{{ day.day_of_week }}</h3>
+            <p><strong>Date:</strong> {{ day.date }}</p>
+            <img src="http://openweathermap.org/img/w/{{ day.icon }}.png" alt="Weather icon" class="weather-icon">
+            <p><strong>Average Temperature:</strong> {{ day.avg_temp|round(1) }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+            <p><strong>Weather:</strong> {{ day.description|title }}</p>
+            <p><strong>Average Humidity:</strong> {{ day.avg_humidity|round(1) }}%</p>
+            <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed|round(1) }} m/s</p>
+        </div>
         {% endfor %}
     </div>
 {% elif forecast is none %}
-    <p>City not found. Please enter a valid city name.</p>  
+    <p class="error-message">City not found. Please enter a valid city name.</p>
 {% else %}
-    <p>Please enter a city to see the 5-day forecast.</p>
+    <p class="weather-update-box">Please enter a city to see the 5-day forecast.</p>
 {% endif %}
 {% endblock %}
