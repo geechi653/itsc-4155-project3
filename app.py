@@ -110,7 +110,7 @@ def process_five_day_forecast(data):
 
         forecast_summary.append({
             'date': date,
-            'day_of_week': values['day_of_week'],  # Add day of the week to the summary
+            'day_of_week': values['day_of_week'],
             'avg_temp': avg_temp,
             'avg_humidity': avg_humidity,
             'avg_wind_speed': avg_wind_speed,
