@@ -10,6 +10,50 @@ app = Flask(__name__)
 # OpenWeatherMap API key
 API_KEY = '983e0f4c72e18f96cfe6e16ac315c528'
 
+def get_weather_tip(weather_desc, temp, humidity, wind_speed, unit='imperial'):
+    """Generate weather tips based on conditions."""
+    tips = []
+    
+ 
+    if unit == 'imperial':
+        if temp > 85:
+            tips.append("High temperature alert! Stay hydrated and seek shade when possible.")
+        elif temp < 32:
+            tips.append("Freezing conditions! Bundle up and watch for icy surfaces.")
+    else:  # for celsius convrtedd from farenheit
+        if temp > 29:
+            tips.append("High temperature alert! Stay hydrated and seek shade when possible.")
+        elif temp < 0:
+            tips.append("Freezing conditions! Bundle up and watch for icy surfaces.")
+
+   
+    weather_desc = weather_desc.lower()
+    if 'rain' in weather_desc:
+        tips.append("Don't forget your umbrella and waterproof footwear!")
+    elif 'snow' in weather_desc:
+        tips.append("Snow expected! Dress warmly and drive carefully.")
+    elif 'storm' in weather_desc or 'thunder' in weather_desc:
+        tips.append("Stormy conditions! Stay indoors if possible and avoid open areas.")
+    elif 'clear' in weather_desc:
+        tips.append("Perfect weather for outdoor activities! Don't forget sunscreen.")
+    elif 'cloud' in weather_desc:
+        tips.append("Cloudy conditions - good for outdoor activities but keep an eye on changes.")
+
+  
+    if humidity > 70:
+        tips.append("High humidity - stay hydrated and dress in breathable clothing.")
+    elif humidity < 30:
+        tips.append("Low humidity - remember to moisturize and stay hydrated.")
+
+   
+    if wind_speed > 10:
+        tips.append("Strong winds! Secure loose objects and be careful when driving.")
+    
+    return tips
+
+
+
+
 # Rate limiting decorator
 def rate_limit(limit=60, per=60):
     rates = defaultdict(lambda: [0, time()])
@@ -105,7 +149,8 @@ def get_weather(city, unit='imperial'):
             'weather_desc': data['weather'][0]['description'],
             'wind': data['wind'],
             'icon': data['weather'][0]['icon'],
-            'unit': '°F' if unit == 'imperial' else '°C'
+            'unit': '°F' if unit == 'imperial' else '°C',
+            'tips': get_weather_tip(data['weather'][0]['description'], data['main']['temp'], data['main']['humidity'], data['wind']['speed'], unit)
         }  
         return weather_info
     except requests.exceptions.HTTPError as http_err:
@@ -165,15 +210,18 @@ def process_five_day_forecast(data, unit='imperial'):
         common_icon = max(set(values['icons']), key=values['icons'].count)
         
         forecast_summary.append({
-            'date': date,
-            'day_of_week': values['day_of_week'],
-            'avg_temp': avg_temp,
-            'avg_humidity': avg_humidity,
-            'avg_wind_speed': avg_wind_speed,
-            'description': common_description,
-            'icon': common_icon,
-            'unit': '°F' if unit == 'imperial' else '°C'
-        })
+    'date': date,
+    'day_of_week': values['day_of_week'],
+    'avg_temp': avg_temp,
+    'avg_humidity': avg_humidity,
+    'avg_wind_speed': avg_wind_speed,
+    'description': common_description,
+    'icon': common_icon,
+    'unit': '°F' if unit == 'imperial' else '°C',
+    'tips': get_weather_tip(common_description, avg_temp, avg_humidity, avg_wind_speed, unit)
+})
+
+        
     
     return forecast_summary
 
