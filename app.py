@@ -51,9 +51,6 @@ def get_weather_tip(weather_desc, temp, humidity, wind_speed, unit='imperial'):
     
     return tips
 
-
-
-
 # Rate limiting decorator
 def rate_limit(limit=60, per=60):
     rates = defaultdict(lambda: [0, time()])
@@ -218,7 +215,9 @@ def process_five_day_forecast(data, unit='imperial'):
                 'weather_descriptions': [],
                 'humidity': [],
                 'wind_speeds': [],
-                'icons': []
+                'icons': [],
+                'lat': data['city']['coord']['lat'],
+                'lon': data['city']['coord']['lon']
             }
         
         daily_forecast[date_str]['temperatures'].append(item['main']['temp'])
@@ -229,6 +228,7 @@ def process_five_day_forecast(data, unit='imperial'):
     
     forecast_summary = []
     for date, values in daily_forecast.items():
+        aqi_data = get_aqi(values['lat'], values['lon'])
         avg_temp = sum(values['temperatures']) / len(values['temperatures'])
         avg_humidity = sum(values['humidity']) / len(values['humidity'])
         avg_wind_speed = sum(values['wind_speeds']) / len(values['wind_speeds'])
@@ -243,12 +243,11 @@ def process_five_day_forecast(data, unit='imperial'):
     'avg_wind_speed': avg_wind_speed,
     'description': common_description,
     'icon': common_icon,
+    'aqi' : aqi_data,
     'unit': '°F' if unit == 'imperial' else '°C',
     'tips': get_weather_tip(common_description, avg_temp, avg_humidity, avg_wind_speed, unit)
 })
-
-        
-    
+       
     return forecast_summary
 
 
