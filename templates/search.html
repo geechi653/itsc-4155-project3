@@ -23,7 +23,12 @@
         <p>Humidity: {{ weather.humidity }}%</p>
         <p>Wind Speed: {{ weather.wind.speed }} m/s</p>
         <p>Description: {{ weather.weather_desc|title }}</p>
-    </div>
+        <p>
+            Air Quality Index (AQI):
+            <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ weather.aqi.color }}; border-radius: 50%; margin-right: 5px;"></span>
+            {{ weather.aqi.level | default('N/A') }}
+        </p>
+        </div>
     {% elif error %}
     <p class="error-message">{{ error }}</p>
     {% endif %}

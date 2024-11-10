@@ -87,6 +87,28 @@ def get_temperature_data():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+        
+def get_aqi(lat, lon):
+    """Fetch AQI data using latitude and longitude."""
+    url = f'http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API_KEY}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        aqi_level = data['list'][0]['main']['aqi']
+        aqi_info = {
+            1: {'level': 'Good', 'color': 'green'},
+            2: {'level': 'Fair', 'color': 'yellow'},
+            3: {'level': 'Moderate', 'color': 'orange'},
+            4: {'level': 'Poor', 'color': 'red'},
+            5: {'level': 'Very Poor', 'color': 'purple'}
+        }
+        
+        return aqi_info[aqi_level]
+    except Exception as e:
+        print(f"Error fetching AQI data: {e}")
+        return {'level': 'Unavailable', 'color': 'gray'}    
 
 def get_weather(city, unit='imperial'):
     """Get current weather data using city name."""
@@ -94,9 +116,12 @@ def get_weather(city, unit='imperial'):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        data = response.json()
+        data = response.json()    
         if data.get('cod') != 200:
             return None
+        lat = data['coord']['lat']
+        lon = data['coord']['lon']
+        aqi_data = get_aqi(lat, lon)
         weather_info = {
             'temperature': data['main']['temp'],
             'temp_min': data['main']['temp_min'],
@@ -104,8 +129,9 @@ def get_weather(city, unit='imperial'):
             'humidity': data['main']['humidity'],
             'weather_desc': data['weather'][0]['description'],
             'wind': data['wind'],
-            'icon': data['weather'][0]['icon'],
-            'unit': '°F' if unit == 'imperial' else '°C'
+            'humidity': data['main']['humidity'],
+            'unit': '°F' if unit == 'imperial' else '°C',
+            'aqi': aqi_data
         }  
         return weather_info
     except requests.exceptions.HTTPError as http_err:
@@ -134,7 +160,7 @@ def get_five_day_forecast(city, unit='imperial'):
 def process_five_day_forecast(data, unit='imperial'):
     """Process the 5-day forecast data to group by day and get average temperature."""
     daily_forecast = {}
-    
+
     for item in data['list']:
         date_time = datetime.utcfromtimestamp(item['dt'])
         date_str = date_time.strftime('%Y-%m-%d')
@@ -173,9 +199,10 @@ def process_five_day_forecast(data, unit='imperial'):
             'description': common_description,
             'icon': common_icon,
             'unit': '°F' if unit == 'imperial' else '°C'
-        })
-    
+        }) 
     return forecast_summary
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
