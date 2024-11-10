@@ -2,9 +2,12 @@
 
 {% block content %}
 <h1>5-Day Weather Forecast</h1>
+
 <form method="POST">
-    <label for="city">City:</label>
-    <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
+    <div class="form-group">
+        <label for="city">City:</label>
+        <input type="text" name="city" id="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
+    </div>
     <button type="submit">Get Forecast</button>
 </form>
 
@@ -12,18 +15,37 @@
     <h2>Weather Forecast for {{ city }}</h2>
     <div class="forecast-container">
         {% for day in forecast %}
-            <div class="forecast-day">
-                <p><strong>Date:</strong> {{ day.date }} ({{ day.day_of_week }})</p>
-                <p><strong>Average Temperature:</strong> {{ day.avg_temp | round(1) }} °F</p>
-                <p><strong>Weather:</strong> {{ day.description }}</p>
-                <p><strong>Average Humidity:</strong> {{ day.avg_humidity | round(1) }}%</p>
-                <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed | round(1) }} m/s</p>
+        <div class="forecast-day">
+            <h3>{{ day.day_of_week }}</h3>
+            <p><strong>Date:</strong> {{ day.date }}</p>
+            <img src="http://openweathermap.org/img/w/{{ day.icon }}.png" alt="Weather icon" class="weather-icon">
+            <p><strong>Average Temperature:</strong> {{ day.avg_temp|round(1) }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+            <p><strong>Weather:</strong> {{ day.description|title }}</p>
+            <p><strong>Average Humidity:</strong> {{ day.avg_humidity|round(1) }}%</p>
+            <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed|round(1) }} m/s</p>
+            <p>
+                Air Quality Index (AQI):
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ day.aqi.color }}; border-radius: 50%; margin-right: 5px;"></span>
+                {{ day.aqi.level | default('N/A') }}
+            </p>
+
+            
+            {% if day.tips %}
+            <div class="weather-tips">
+                {% for tip in day.tips %}
+                <div class="weather-tip">
+                    <span class="weather-tip-icon">💡</span>
+                    {{ tip }}
+                </div>
+                {% endfor %}
             </div>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
 {% elif forecast is none %}
-    <p>City not found. Please enter a valid city name.</p>  
+    <p class="error-message">City not found. Please enter a valid city name.</p>
 {% else %}
-    <p>No forecast data available. Please enter a city to see the 5-day forecast.</p>
+    <p class="weather-update-box">Please enter a city to see the 5-day forecast.</p>
 {% endif %}
 {% endblock %}

@@ -1,44 +1,73 @@
 {% extends "base.html" %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+{% endblock %}
 
 {% block content %}
 <h1>Temperature Map</h1>
 <div id="map" style="height: 500px;"></div>
 
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
 <script>
     var map = L.map('map').setView([0, 0], 2);
+    
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    function getColor(temperature) {
-        return temperature > 90 ? '#FF0000' :
-               temperature > 80 ? '#FF3300' :
-               temperature > 70 ? '#FF6600' :
-               temperature > 60 ? '#FF9900' :
-               temperature > 50 ? '#FFCC00' :
-               temperature > 40 ? '#FFFF00' :
-               temperature > 30 ? '#CCFF00' :
-               temperature > 20 ? '#99FF00' :
-               temperature > 10 ? '#66FF00' :
-                                  '#33FF00';
+    let marker;
+
+    function getCurrentUnit() {
+        return document.querySelector('input[name="globalUnit"]:checked').value;
     }
 
     map.on('click', function(e) {
-        fetch(`/get_temperature_data?lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        const currentUnit = getCurrentUnit();
+        
+        fetch(`/get_temperature_data?lat=${lat}&lon=${lng}&unit=${currentUnit}`)
             .then(response => response.json())
             .then(data => {
-                if (data.temperature) {
-                    L.circle(e.latlng, {
-                        color: getColor(data.temperature),
-                        fillColor: getColor(data.temperature),
-                        fillOpacity: 0.5,
-                        radius: 50000
-                    }).addTo(map).bindPopup(`Temperature: ${data.temperature.toFixed(1)}°F`);
+                if (marker) {
+                    map.removeLayer(marker);
                 }
-            });
+                
+                const unitSymbol = currentUnit === 'imperial' ? '°F' : '°C';
+                
+                marker = L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="text-align: center;">
+                            <img src="http://openweathermap.org/img/w/${data.icon}.png" alt="Weather icon"><br>
+                            Temperature: ${data.temperature}${unitSymbol}<br>
+                            ${data.description}
+                        </div>
+                    `)
+                    .openPopup();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.querySelectorAll('input[name="globalUnit"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (marker) {
+                const latlng = marker.getLatLng();
+                fetch(`/get_temperature_data?lat=${latlng.lat}&lon=${latlng.lng}&unit=${this.value}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const unitSymbol = this.value === 'imperial' ? '°F' : '°C';
+                        marker.setPopupContent(`
+                            <div style="text-align: center;">
+                                <img src="http://openweathermap.org/img/w/${data.icon}.png" alt="Weather icon"><br>
+                                Temperature: ${data.temperature}${unitSymbol}<br>
+                                ${data.description}
+                            </div>
+                        `);
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
     });
 </script>
 

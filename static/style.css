@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
@@ -9,7 +9,7 @@ body {
 nav {
     background-color: #333;
     color: white;
-    padding: 10px 0;
+    padding: 20px 0;
     text-align: center;
 }
 
@@ -17,21 +17,30 @@ nav ul {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    max-width: 800px; 
+    margin: 0 auto;  
 }
 
 nav ul li {
     display: inline;
-    margin: 0 15px;
+    margin: 0 30px;
 }
 
 nav ul li a {
     color: white;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 18px;
+    padding: 10px 15px;
+    transition: color 0.3s
 }
 
 nav ul li a:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    color: #e0e0e0;
+
 }
 
 .content {
@@ -47,21 +56,40 @@ nav ul li a:hover {
 
 h1 {
     color: #ffffff;
+    margin: 0;
+    text-align: center;
+}
+
+h2{
+    text-align: center;
+}
+
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
 }
 
 form {
-    margin: 30px 0;
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    width: 100%;
 }
 
-form label, form input, form button {
-    display: block;
+form label, form input {
+    width: 100%;
+    max-width: 500px; 
+    text-align: center; 
     margin: 10px 0;
 }
 
 form input {
     padding: 8px;
-    width: 100%;
     box-sizing: border-box;
+    
 }
 
 form button {
@@ -76,12 +104,29 @@ form button:hover {
     background-color: #555;
 }
 
+
+
+.search-container{   
+    max-width: 500px; 
+    margin: 20px 20px; 
+    padding: 100px;
+    border-radius: 8px;
+    text-align: center;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.search-container h1{
+    color: #333;
+    margin-bottom: 10px;
+}
+
 .forecast-container {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
-
 .forecast-day {
     background: #f1f1f1;
     padding: 15px;
@@ -91,7 +136,7 @@ form button:hover {
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 }
 
-.wrapper {
+.wrapper{
     min-height: calc(100vh - 50px); 
     display: flex;
     flex-direction: column;
@@ -125,4 +170,238 @@ footer {
     padding: 20px;
     border-radius: 10px;
     max-width: 600px;
+}
+
+.weather-update-box {
+    border: 2px solid #333; 
+    padding: 10px 10px; 
+    max-width: 400px; 
+    margin: 10px auto; 
+    text-align: center; 
+    background-color: #f9f9f9; 
+    border-radius: 10px; 
+}
+
+.features {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.features ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.features ul li {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.features ul li i {
+    margin-right: 10px;
+    color: #333;
+}
+
+.unit-toggle {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 20px;
+    padding: 8px 15px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    transition: background-color 0.3s;
+}
+
+.unit-toggle label {
+    margin: 0 8px;
+    cursor: pointer;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.unit-toggle label:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.unit-toggle input[type="radio"]:checked + label {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+#map {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    width: 100%;
+    height: 500px;
+}
+
+.weather-icon {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 10px 0;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.success-message {
+    color: #28a745;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.leaflet-popup-content {
+    text-align: center;
+    padding: 10px;
+}
+
+.leaflet-popup-content img {
+    margin: 5px 0;
+}
+
+.navigation a {
+    color: #007bff;
+    text-decoration: none;
+    margin: 0 10px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.navigation a:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+.weather-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 20px 0;
+    text-align: center;
+}
+
+.weather-info img {
+    margin: 10px 0;
+}
+
+.search-container form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.error-container {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.error-container h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.error-container .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.error-container .btn:hover {
+    background-color: #555;
+}
+
+.weather-tip {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.weather-tip-icon {
+    margin-right: 8px;
+    color: #2196f3;
+}
+
+.search-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.form-group {
+    margin: 20px 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.get-weather-btn {
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.get-weather-btn:hover {
+    background-color: #555;
+}
+
+.weather-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }

@@ -1,25 +1,59 @@
 {% extends 'base.html' %}
-
-{% block title %}Search - Weather App{% endblock %} 
+{% block title %}Search - Weather App{% endblock %}
 {% block header %}Search Weather{% endblock %}
 {% block content %}
-<h1>Search Weather</h1>
-<form method="POST">
-    <label for="city">City:</label>
-    <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
-    <button type="submit">Get Weather</button>
-</form>
+<div class="search-container">
+    <h1>Search Weather</h1>
+    <p><strong>City name to get Current Weather:</strong></p>
 
-{% if weather %}
-    <h2>Weather in {{ city }}</h2>
-    <p>Current Temperature: {{ weather['temperature'] }} °F</p>
-    <p>High Temperature: {{ weather['temp_max'] }} °F</p>
-    <p>Low Temperature: {{ weather['temp_min'] }} °F</p>    
-    <p>Humidity: {{ weather['humidity'] }}%</p>
-    <p>Wind Speed: {{ weather['wind']['speed'] }} m/s</p>
-{% elif forecast is none %}
-    <p>City not found. Please enter a valid city name.</p>
-{% else %}
-    <p>Weather data not found. Please try again.</p>
-{% endif %}
+    {% if history %}
+    <div class="search-history">
+        <h3>Recent Searches</h3>
+        <div class="history-list">
+            {% for city, date in history %}
+            <div class="history-item">
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="city" value="{{ city }}">
+                    <button type="submit" class="history-button">{{ city }}</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
+        </div>
+        <button type="submit">Get Weather</button>
+    </form>
+
+    {% if weather %}
+    <div class="weather-info">
+        <h2>Weather in {{ city }}</h2>
+        <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon" class="weather-icon">
+        <p>Current Temperature: {{ weather.temperature }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+        <p>High Temperature: {{ weather.temp_max }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+        <p>Low Temperature: {{ weather.temp_min }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
+        <p>Humidity: {{ weather.humidity }}%</p>
+        <p>Wind Speed: {{ weather.wind.speed }} m/s</p>
+        <p>Description: {{ weather.weather_desc|title }}</p>
+        
+        {% if weather.tips %}
+        <div class="weather-tips">
+            {% for tip in weather.tips %}
+            <div class="weather-tip">
+                <span class="weather-tip-icon">💡</span>
+                {{ tip }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% elif error %}
+    <p class="error-message">{{ error }}</p>
+    {% endif %}
+</div>
 {% endblock %}
