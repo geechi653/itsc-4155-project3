@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>5-Day Weather Forecast</h1>
+
 <form method="POST">
     <div class="form-group">
         <label for="city">City:</label>
@@ -22,6 +23,17 @@
             <p><strong>Weather:</strong> {{ day.description|title }}</p>
             <p><strong>Average Humidity:</strong> {{ day.avg_humidity|round(1) }}%</p>
             <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed|round(1) }} m/s</p>
+            
+            {% if day.tips %}
+            <div class="weather-tips">
+                {% for tip in day.tips %}
+                <div class="weather-tip">
+                    <span class="weather-tip-icon">💡</span>
+                    {{ tip }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

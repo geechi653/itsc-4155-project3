@@ -5,14 +5,15 @@
 <div class="search-container">
     <h1>Search Weather</h1>
     <p><strong>City name to get Current Weather:</strong></p>
+    
     <form method="POST">
         <div class="form-group">
             <label for="city">City:</label>
-            <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
+            <input type="text" name="city" id="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
         </div>
         <button type="submit">Get Weather</button>
     </form>
-    
+
     {% if weather %}
     <div class="weather-info">
         <h2>Weather in {{ city }}</h2>
@@ -28,7 +29,18 @@
             <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ weather.aqi.color }}; border-radius: 50%; margin-right: 5px;"></span>
             {{ weather.aqi.level | default('N/A') }}
         </p>
+    
+        {% if weather.tips %}
+        <div class="weather-tips">
+            {% for tip in weather.tips %}
+            <div class="weather-tip">
+                <span class="weather-tip-icon">💡</span>
+                {{ tip }}
+            </div>
+            {% endfor %}
         </div>
+        {% endif %}
+    </div>
     {% elif error %}
     <p class="error-message">{{ error }}</p>
     {% endif %}
