@@ -4,8 +4,42 @@ from datetime import datetime
 from functools import wraps
 from time import time
 from collections import defaultdict
+from flask import session
+import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = 'ee7ea1ebacf0f523ae4b3c285a59b34e'
+
+
+def init_db():
+    conn = sqlite3.connect('weather_history.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS search_history
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  city TEXT NOT NULL,
+                  search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
+
+def save_search(city):
+    conn = sqlite3.connect('weather_history.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO search_history (city) VALUES (?)', (city,))
+    conn.commit()
+    conn.close()
+
+def get_search_history():
+    conn = sqlite3.connect('weather_history.db')
+    c = conn.cursor()
+    c.execute('SELECT DISTINCT city, MAX(search_date) FROM search_history GROUP BY city ORDER BY search_date DESC LIMIT 5')
+    history = c.fetchall()
+    conn.close()
+    return history
 
 # OpenWeatherMap API key
 API_KEY = '983e0f4c72e18f96cfe6e16ac315c528'
@@ -51,9 +85,6 @@ def get_weather_tip(weather_desc, temp, humidity, wind_speed, unit='imperial'):
     
     return tips
 
-
-
-
 # Rate limiting decorator
 def rate_limit(limit=60, per=60):
     rates = defaultdict(lambda: [0, time()])
@@ -93,10 +124,16 @@ def search():
         unit = request.form.get('unit', 'imperial')
         weather_data = get_weather(city, unit)
         if weather_data is not None:
-            return render_template('search.html', weather=weather_data, city=city, unit=unit)
+            save_search(city)  # Save the search
+            history = get_search_history()  # Get recent searches
+            return render_template('search.html', weather=weather_data, city=city, unit=unit, history=history)
         else:
-            return render_template('search.html', city=city, error="City not found.", unit=unit)
-    return render_template('search.html', unit=request.args.get('unit', 'imperial'))
+            history = get_search_history()  # Get history even if search fails
+            return render_template('search.html', city=city, error="City not found.", unit=unit, history=history)
+    
+    # For GET requests, show search history
+    history = get_search_history()
+    return render_template('search.html', unit=request.args.get('unit', 'imperial'), history=history)
 
 @app.route('/forecast', methods=['GET', 'POST'])
 def forecast():
@@ -131,6 +168,28 @@ def get_temperature_data():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+        
+def get_aqi(lat, lon):
+    """Fetch AQI data using latitude and longitude."""
+    url = f'http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API_KEY}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        aqi_level = data['list'][0]['main']['aqi']
+        aqi_info = {
+            1: {'level': 'Good', 'color': 'green'},
+            2: {'level': 'Fair', 'color': 'yellow'},
+            3: {'level': 'Moderate', 'color': 'orange'},
+            4: {'level': 'Poor', 'color': 'red'},
+            5: {'level': 'Very Poor', 'color': 'purple'}
+        }
+        
+        return aqi_info[aqi_level]
+    except Exception as e:
+        print(f"Error fetching AQI data: {e}")
+        return {'level': 'Unavailable', 'color': 'gray'}    
 
 def get_weather(city, unit='imperial'):
     """Get current weather data using city name."""
@@ -138,9 +197,12 @@ def get_weather(city, unit='imperial'):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        data = response.json()
+        data = response.json()    
         if data.get('cod') != 200:
             return None
+        lat = data['coord']['lat']
+        lon = data['coord']['lon']
+        aqi_data = get_aqi(lat, lon)
         weather_info = {
             'temperature': data['main']['temp'],
             'temp_min': data['main']['temp_min'],
@@ -148,8 +210,10 @@ def get_weather(city, unit='imperial'):
             'humidity': data['main']['humidity'],
             'weather_desc': data['weather'][0]['description'],
             'wind': data['wind'],
+            'humidity': data['main']['humidity'],
             'icon': data['weather'][0]['icon'],
             'unit': '°F' if unit == 'imperial' else '°C',
+            'aqi': aqi_data,
             'tips': get_weather_tip(data['weather'][0]['description'], data['main']['temp'], data['main']['humidity'], data['wind']['speed'], unit)
         }  
         return weather_info
@@ -179,7 +243,7 @@ def get_five_day_forecast(city, unit='imperial'):
 def process_five_day_forecast(data, unit='imperial'):
     """Process the 5-day forecast data to group by day and get average temperature."""
     daily_forecast = {}
-    
+
     for item in data['list']:
         date_time = datetime.utcfromtimestamp(item['dt'])
         date_str = date_time.strftime('%Y-%m-%d')
@@ -192,7 +256,9 @@ def process_five_day_forecast(data, unit='imperial'):
                 'weather_descriptions': [],
                 'humidity': [],
                 'wind_speeds': [],
-                'icons': []
+                'icons': [],
+                'lat': data['city']['coord']['lat'],
+                'lon': data['city']['coord']['lon']
             }
         
         daily_forecast[date_str]['temperatures'].append(item['main']['temp'])
@@ -203,6 +269,7 @@ def process_five_day_forecast(data, unit='imperial'):
     
     forecast_summary = []
     for date, values in daily_forecast.items():
+        aqi_data = get_aqi(values['lat'], values['lon'])
         avg_temp = sum(values['temperatures']) / len(values['temperatures'])
         avg_humidity = sum(values['humidity']) / len(values['humidity'])
         avg_wind_speed = sum(values['wind_speeds']) / len(values['wind_speeds'])
@@ -217,13 +284,14 @@ def process_five_day_forecast(data, unit='imperial'):
     'avg_wind_speed': avg_wind_speed,
     'description': common_description,
     'icon': common_icon,
+    'aqi' : aqi_data,
     'unit': '°F' if unit == 'imperial' else '°C',
     'tips': get_weather_tip(common_description, avg_temp, avg_humidity, avg_wind_speed, unit)
 })
-
-        
-    
+       
     return forecast_summary
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)

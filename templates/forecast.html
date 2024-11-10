@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <h1>5-Day Weather Forecast</h1>
 
@@ -22,6 +23,12 @@
             <p><strong>Weather:</strong> {{ day.description|title }}</p>
             <p><strong>Average Humidity:</strong> {{ day.avg_humidity|round(1) }}%</p>
             <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed|round(1) }} m/s</p>
+            <p>
+                Air Quality Index (AQI):
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ day.aqi.color }}; border-radius: 50%; margin-right: 5px;"></span>
+                {{ day.aqi.level | default('N/A') }}
+            </p>
+
             
             {% if day.tips %}
             <div class="weather-tips">

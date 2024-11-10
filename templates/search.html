@@ -5,11 +5,27 @@
 <div class="search-container">
     <h1>Search Weather</h1>
     <p><strong>City name to get Current Weather:</strong></p>
+
+    {% if history %}
+    <div class="search-history">
+        <h3>Recent Searches</h3>
+        <div class="history-list">
+            {% for city, date in history %}
+            <div class="history-item">
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="city" value="{{ city }}">
+                    <button type="submit" class="history-button">{{ city }}</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
     
     <form method="POST">
         <div class="form-group">
             <label for="city">City:</label>
-            <input type="text" name="city" id="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
+            <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
         </div>
         <button type="submit">Get Weather</button>
     </form>
@@ -24,7 +40,7 @@
         <p>Humidity: {{ weather.humidity }}%</p>
         <p>Wind Speed: {{ weather.wind.speed }} m/s</p>
         <p>Description: {{ weather.weather_desc|title }}</p>
-
+        
         {% if weather.tips %}
         <div class="weather-tips">
             {% for tip in weather.tips %}
