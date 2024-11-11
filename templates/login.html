@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Search - Weather App{% endblock %}
+{% block header %}Search Weather{% endblock %}
+{% block content %}
+
+<div class="login-container">
+    <form class="login-form">
+      <h2>Weather App Login</h2>
+      <div class="input-group">
+        <label type="email" for="username">Email</label>
+        <input type="text" id="username" placeholder="Email" required>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Password" required>
+      </div>
+      <div class="login-button">
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -9,6 +9,9 @@
 <body>
     <nav>
         <ul>
+            <div class="auth-links">
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+            </div>
             <li><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('search') }}">Search</a></li>
             <li><a href="{{ url_for('forecast') }}">Forecast</a></li>

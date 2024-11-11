@@ -42,6 +42,18 @@ def home():
     unit = request.args.get('unit', 'imperial')
     return render_template('home.html', unit=unit)
 
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        return render_template('home.html')
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        return render_template('home.html')
+    return render_template('login.html')
+
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
