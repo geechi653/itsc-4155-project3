@@ -360,3 +360,20 @@ footer {
     margin-right: 8px;
     color: #2196f3;
 }
+
+.aqi-circle {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.aqi-good { background-color: green; }
+.aqi-fair { background-color: yellow; }
+.aqi-moderate { background-color: orange; }
+.aqi-poor { background-color: red; }
+.aqi-very-poor { background-color: purple; }
+.aqi-unavailable { background-color: gray; }
+
+

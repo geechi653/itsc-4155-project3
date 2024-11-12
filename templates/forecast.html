@@ -25,7 +25,7 @@
             <p><strong>Average Wind Speed:</strong> {{ day.avg_wind_speed|round(1) }} m/s</p>
             <p>
                 Air Quality Index (AQI):
-                <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ day.aqi.color }}; border-radius: 50%; margin-right: 5px;"></span>
+                <span class="aqi-indicator {{ day.aqi.class }}" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px;"></span>
                 {{ day.aqi.level | default('N/A') }}
             </p>
 

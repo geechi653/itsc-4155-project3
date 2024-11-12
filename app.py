@@ -139,17 +139,17 @@ def get_aqi(lat, lon):
         
         aqi_level = data['list'][0]['main']['aqi']
         aqi_info = {
-            1: {'level': 'Good', 'color': 'green'},
-            2: {'level': 'Fair', 'color': 'yellow'},
-            3: {'level': 'Moderate', 'color': 'orange'},
-            4: {'level': 'Poor', 'color': 'red'},
-            5: {'level': 'Very Poor', 'color': 'purple'}
+            1: {'level': 'Good', 'class': 'aqi-good'},
+            2: {'level': 'Fair', 'class': 'aqi-fair'},
+            3: {'level': 'Moderate', 'class': 'aqi-moderate'},
+            4: {'level': 'Poor', 'class': 'aqi-poor'},
+            5: {'level': 'Very Poor', 'class': 'aqi-very-poor'}
         }
         
-        return aqi_info[aqi_level]
+        return aqi_info.get(aqi_level, {'level': 'Unavailable', 'class': 'aqi-unavailable'})
     except Exception as e:
         print(f"Error fetching AQI data: {e}")
-        return {'level': 'Unavailable', 'color': 'gray'}    
+        return {'level': 'Unavailable', 'class': 'aqi-unavailable'}    
 
 def get_weather(city, unit='imperial'):
     """Get current weather data using city name."""

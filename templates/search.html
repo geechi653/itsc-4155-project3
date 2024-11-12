@@ -26,7 +26,7 @@
         <p>Description: {{ weather.weather_desc|title }}</p>
         <p>
             Air Quality Index (AQI):
-            <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ weather.aqi.color }}; border-radius: 50%; margin-right: 5px;"></span>
+            <span class="aqi-indicator {{ weather.aqi.class }}" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px;"></span>
             {{ weather.aqi.level | default('N/A') }}
         </p>
     
