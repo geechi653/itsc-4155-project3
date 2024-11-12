@@ -210,6 +210,7 @@ def get_weather(city, unit='imperial'):
             'humidity': data['main']['humidity'],
             'weather_desc': data['weather'][0]['description'],
             'wind': data['wind'],
+            'humidity': data['main']['humidity'],
             'icon': data['weather'][0]['icon'],
             'unit': '°F' if unit == 'imperial' else '°C',
             'aqi': aqi_data,
