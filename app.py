@@ -124,14 +124,14 @@ def search():
         unit = request.form.get('unit', 'imperial')
         weather_data = get_weather(city, unit)
         if weather_data is not None:
-            save_search(city)  # Save the search
-            history = get_search_history()  # Get recent searches
+            save_search(city)  
+            history = get_search_history()  
             return render_template('search.html', weather=weather_data, city=city, unit=unit, history=history)
         else:
-            history = get_search_history()  # Get history even if search fails
+            history = get_search_history()  
             return render_template('search.html', city=city, error="City not found.", unit=unit, history=history)
     
-    # For GET requests, show search history
+
     history = get_search_history()
     return render_template('search.html', unit=request.args.get('unit', 'imperial'), history=history)
 
