@@ -4,8 +4,42 @@ from datetime import datetime
 from functools import wraps
 from time import time
 from collections import defaultdict
+from flask import session
+import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = 'ee7ea1ebacf0f523ae4b3c285a59b34e'
+
+
+def init_db():
+    conn = sqlite3.connect('weather_history.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS search_history
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  city TEXT NOT NULL,
+                  search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
+
+def save_search(city):
+    conn = sqlite3.connect('weather_history.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO search_history (city) VALUES (?)', (city,))
+    conn.commit()
+    conn.close()
+
+def get_search_history():
+    conn = sqlite3.connect('weather_history.db')
+    c = conn.cursor()
+    c.execute('SELECT DISTINCT city, MAX(search_date) FROM search_history GROUP BY city ORDER BY search_date DESC LIMIT 5')
+    history = c.fetchall()
+    conn.close()
+    return history
 
 # OpenWeatherMap API key
 API_KEY = '983e0f4c72e18f96cfe6e16ac315c528'
@@ -90,10 +124,16 @@ def search():
         unit = request.form.get('unit', 'imperial')
         weather_data = get_weather(city, unit)
         if weather_data is not None:
-            return render_template('search.html', weather=weather_data, city=city, unit=unit)
+            save_search(city)  
+            history = get_search_history()  
+            return render_template('search.html', weather=weather_data, city=city, unit=unit, history=history)
         else:
-            return render_template('search.html', city=city, error="City not found.", unit=unit)
-    return render_template('search.html', unit=request.args.get('unit', 'imperial'))
+            history = get_search_history()  
+            return render_template('search.html', city=city, error="City not found.", unit=unit, history=history)
+    
+
+    history = get_search_history()
+    return render_template('search.html', unit=request.args.get('unit', 'imperial'), history=history)
 
 @app.route('/forecast', methods=['GET', 'POST'])
 def forecast():
@@ -171,6 +211,7 @@ def get_weather(city, unit='imperial'):
             'weather_desc': data['weather'][0]['description'],
             'wind': data['wind'],
             'humidity': data['main']['humidity'],
+            'icon': data['weather'][0]['icon'],
             'unit': '°F' if unit == 'imperial' else '°C',
             'aqi': aqi_data,
             'tips': get_weather_tip(data['weather'][0]['description'], data['main']['temp'], data['main']['humidity'], data['wind']['speed'], unit)
