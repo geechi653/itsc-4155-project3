@@ -376,4 +376,153 @@ footer {
 .aqi-very-poor { background-color: purple; }
 .aqi-unavailable { background-color: gray; }
 
+/* Login CSS */
+.auth-links{
+    float: right;
+    margin: 0 20px;
+    color: white;
+    padding: 3px;
+  }
+
+  .login-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    width: 320px;
+    border-radius: 25px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Form Styling */
+  .login-form {
+    width: 100%;
+  }
+  
+  .login-form h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  /* Input Group with Rounded Input Fields */
+  .input-group {
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-size: 1rem;
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  .input-group input:focus {
+    border-color: #1e90ff;
+  }
+
+  
+   .login-button button {
+    width: 100%;
+    max-width: 260px; /* Set a max width for the button to make it longer */
+    padding: 0.75rem;
+    background-color: #1e90ff;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.1s ease-in-out;
+    margin: 0 auto; /* Center the button */
+    display: block;
+  }
+  
+  .login-button button:hover {
+    background-color: #0066cc;
+  }
+  
+  .login-button button:active {
+    transform: scale(0.98);
+  }
+
+  .auth-links {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.3); /* Bootstrap blue, adjust as needed */
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.auth-links:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Darker blue for hover effect */
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Signup */
+
+.signup-form {
+    width: 350px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.signup-form h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: #007bff;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px; /* Increased border-radius for a more rounded look */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+    background-color: #0056b3;
+}
 

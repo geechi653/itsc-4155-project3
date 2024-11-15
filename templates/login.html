@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Search - Weather App{% endblock %}
+{% block header %}Search Weather{% endblock %}
+{% block content %}
+
+<div class="login-container">
+    <h2>Weather App Login</h2>
+    <form class="login-form">
+      <div class="input-group">
+        <label type="email" for="username">Email</label>
+        <input type="text" id="username" placeholder="Email" required>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Password" required>
+      </div>
+      <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+      <div class="login-button">
+        <button class="auth-button" type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
