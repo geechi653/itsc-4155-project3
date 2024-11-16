@@ -12,7 +12,7 @@
         <div class="history-list">
             {% for city, date in history %}
             <div class="history-item">
-                <form method="POST" style="display: inline;">
+                <form method="POST" style="display:flex; align-items: center; padding: 5px;">
                     <input type="hidden" name="city" value="{{ city }}">
                     <button type="submit" class="history-button">{{ city }}</button>
                 </form>
@@ -22,7 +22,7 @@
     </div>
     {% endif %}
     
-    <form method="POST">
+    <form method="POST" style="display:flex; align-items: center;">
         <div class="form-group">
             <label for="city">City:</label>
             <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
@@ -40,8 +40,7 @@
         <p>Humidity: {{ weather.humidity }}%</p>
         <p>Wind Speed: {{ weather.wind.speed }} m/s</p>
         <p>Description: {{ weather.weather_desc|title }}</p>
-        <p>
-            Air Quality Index (AQI):
+        <p><strong>Air Quality Index (AQI):</strong>           
             <span class="aqi-indicator {{ weather.aqi.class }}" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px;"></span>
             {{ weather.aqi.level | default('N/A') }}
         </p>

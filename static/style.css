@@ -76,7 +76,7 @@ form {
     flex-direction: column; 
     align-items: center; 
     justify-content: center;
-    width: 100%;
+    max-width: 500px;
 }
 
 form label, form input {
@@ -120,6 +120,8 @@ form button:hover {
 .search-container h1{
     color: #333;
     margin-bottom: 10px;
+    justify-content: center;
+    align-items: center;
 }
 
 .forecast-container {
@@ -180,6 +182,7 @@ footer {
     text-align: center; 
     background-color: #f9f9f9; 
     border-radius: 10px; 
+    justify-content: center;
 }
 
 .features {
@@ -307,6 +310,7 @@ footer {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin: 20px 0;
     text-align: center;
+    justify-content: center;
 }
 
 .weather-info img {
