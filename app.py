@@ -204,7 +204,6 @@ def get_aqi(lat, lon):
         return {'level': 'Unavailable', 'class': 'aqi-unavailable'}    
 
 def get_weather(city, unit='imperial'):
-    """Get current weather data using city name."""
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units={unit}'
     try:
         response = requests.get(url)
@@ -222,11 +221,11 @@ def get_weather(city, unit='imperial'):
             'humidity': data['main']['humidity'],
             'weather_desc': data['weather'][0]['description'],
             'wind': data['wind'],
-            'humidity': data['main']['humidity'],
             'icon': data['weather'][0]['icon'],
             'unit': '°F' if unit == 'imperial' else '°C',
             'aqi': aqi_data,
-            'tips': get_weather_tip(data['weather'][0]['description'], data['main']['temp'], data['main']['humidity'], data['wind']['speed'], unit)
+            'tips': get_weather_tip(data['weather'][0]['description'], data['main']['temp'], data['main']['humidity'], data['wind']['speed'], unit),
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')  
         }  
         return weather_info
     except requests.exceptions.HTTPError as http_err:
@@ -253,14 +252,13 @@ def get_five_day_forecast(city, unit='imperial'):
     return None
 
 def process_five_day_forecast(data, unit='imperial'):
-    """Process the 5-day forecast data to group by day and get average temperature."""
     daily_forecast = {}
 
     for item in data['list']:
         date_time = datetime.utcfromtimestamp(item['dt'])
         date_str = date_time.strftime('%Y-%m-%d')
         day_of_week = date_time.strftime('%A')  
-        
+
         if date_str not in daily_forecast:
             daily_forecast[date_str] = {
                 'day_of_week': day_of_week,
@@ -272,13 +270,13 @@ def process_five_day_forecast(data, unit='imperial'):
                 'lat': data['city']['coord']['lat'],
                 'lon': data['city']['coord']['lon']
             }
-        
+
         daily_forecast[date_str]['temperatures'].append(item['main']['temp'])
         daily_forecast[date_str]['weather_descriptions'].append(item['weather'][0]['description'])
         daily_forecast[date_str]['humidity'].append(item['main']['humidity'])
         daily_forecast[date_str]['wind_speeds'].append(item['wind']['speed'])
         daily_forecast[date_str]['icons'].append(item['weather'][0]['icon'])
-    
+
     forecast_summary = []
     for date, values in daily_forecast.items():
         aqi_data = get_aqi(values['lat'], values['lon'])
@@ -287,22 +285,22 @@ def process_five_day_forecast(data, unit='imperial'):
         avg_wind_speed = sum(values['wind_speeds']) / len(values['wind_speeds'])
         common_description = max(set(values['weather_descriptions']), key=values['weather_descriptions'].count)
         common_icon = max(set(values['icons']), key=values['icons'].count)
-        
-        forecast_summary.append({
-    'date': date,
-    'day_of_week': values['day_of_week'],
-    'avg_temp': avg_temp,
-    'avg_humidity': avg_humidity,
-    'avg_wind_speed': avg_wind_speed,
-    'description': common_description,
-    'icon': common_icon,
-    'aqi' : aqi_data,
-    'unit': '°F' if unit == 'imperial' else '°C',
-    'tips': get_weather_tip(common_description, avg_temp, avg_humidity, avg_wind_speed, unit)
-})
-       
-    return forecast_summary
 
+        forecast_summary.append({
+            'date': date,
+            'day_of_week': values['day_of_week'],
+            'avg_temp': avg_temp,
+            'avg_humidity': avg_humidity,
+            'avg_wind_speed': avg_wind_speed,
+            'description': common_description,
+            'icon': common_icon,
+            'aqi': aqi_data,
+            'unit': '°F' if unit == 'imperial' else '°C',
+            'tips': get_weather_tip(common_description, avg_temp, avg_humidity, avg_wind_speed, unit),
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')  
+        })
+
+    return forecast_summary
 
 
 if __name__ == '__main__':
