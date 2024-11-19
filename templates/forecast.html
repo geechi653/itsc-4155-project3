@@ -27,8 +27,8 @@
                 <span class="aqi-indicator {{ day.aqi.class }}" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px;"></span>
                 {{ day.aqi.level | default('N/A') }}
             </p>
+            <p><strong>Last Updated:</strong> {{ day.last_updated }}</p> 
 
-            
             {% if day.tips %}
             <div class="weather-tips">
                 {% for tip in day.tips %}
