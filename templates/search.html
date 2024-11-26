@@ -1,64 +1,87 @@
 {% extends 'base.html' %}
 {% block title %}Search - Weather App{% endblock %}
-{% block header %}Search Weather{% endblock %}
+
 {% block content %}
 <div class="search-container">
-    <h1>Search Weather</h1>
-    <p><strong>City name to get Current Weather:</strong></p>
-
-    {% if history %}
-    <div class="search-history">
-        <h3>Recent Searches</h3>
-        <div class="history-list">
-            {% for city, date in history %}
-            <div class="history-item">
-                <form method="POST" style="display:flex; align-items: center; padding: 5px;">
-                    <input type="hidden" name="city" value="{{ city }}">
-                    <button type="submit" class="history-button">{{ city }}</button>
-                </form>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-    
-    <form method="POST" style="display:flex; align-items: center;">
-        <div class="form-group">
-            <label for="city">City:</label>
-            <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" required>
-        </div>
-        <button type="submit">Get Weather</button>
+    <form method="post">
+        <input type="text" name="city" placeholder="Enter city name" required>
+        <button type="submit">Search</button>
     </form>
 
-    {% if weather %}
-    <div class="weather-info">
-        <h2>Weather in {{ city }}</h2>
-        <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon" class="weather-icon">
-        <p>Current Temperature: {{ weather.temperature }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
-        <p>High Temperature: {{ weather.temp_max }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
-        <p>Low Temperature: {{ weather.temp_min }} {{ unit == 'imperial' and '°F' or '°C' }}</p>
-        <p>Humidity: {{ weather.humidity }}%</p>
-        <p>Wind Speed: {{ weather.wind.speed }} m/s</p>
-        <p>Description: {{ weather.weather_desc|title }}</p>
-        <p><strong>Air Quality Index (AQI):</strong>           
-            <span class="aqi-indicator {{ weather.aqi.class }}" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px;"></span>
-            {{ weather.aqi.level | default('N/A') }}
-        </p>
-        <p><strong>Last Updated:</strong> {{ weather.last_updated }}</p> 
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
 
-        {% if weather.tips %}
-        <div class="weather-tips">
-            {% for tip in weather.tips %}
-            <div class="weather-tip">
-                <span class="weather-tip-icon">💡</span>
-                {{ tip }}
+    {% if weather %}
+        <div class="weather-info">
+            <div class="weather-header">
+                <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon" class="weather-icon">
+                <h2>{{ city }}</h2>
             </div>
-            {% endfor %}
+            
+            <div class="weather-details">
+                <div class="detail-item">
+                    <span class="label">Temperature:</span>
+                    <span class="value">{{ weather.temperature }}{{ weather.unit }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Min Temperature:</span>
+                    <span class="value">{{ weather.temp_min }}{{ weather.unit }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Max Temperature:</span>
+                    <span class="value">{{ weather.temp_max }}{{ weather.unit }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Humidity:</span>
+                    <span class="value">{{ weather.humidity }}%</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Wind Speed:</span>
+                    <span class="value">{{ weather.wind.speed }} mph</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Conditions:</span>
+                    <span class="value">{{ weather.weather_desc|title }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">AQI:</span>
+                    <span class="value"><span class="aqi-circle {{ weather.aqi.class }}"></span>{{ weather.aqi.level }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Last Updated:</span>
+                    <span class="value">{{ weather.last_updated }}</span>
+                </div>
+            </div>
+
+            {% if weather.tips %}
+            <div class="weather-tips">
+                <h3>Weather Tips:</h3>
+                {% for tip in weather.tips %}
+                    <div class="weather-tip">
+                        <i class="weather-tip-icon">💡</i>
+                        {{ tip }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
-    </div>
-    {% elif error %}
-    <p class="error-message">{{ error }}</p>
+    {% endif %}
+
+    {% if history %}
+        <div class="search-history">
+            <h3>Recent Searches:</h3>
+            <ul>
+                {% for city, date in history %}
+                    <li>
+                        <form method="post" style="display: inline;">
+                            <input type="hidden" name="city" value="{{ city }}">
+                            <button type="submit" class="history-btn">{{ city }}</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

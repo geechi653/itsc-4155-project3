@@ -1,18 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Home - Weather App{% endblock %} 
-{% block header %}Welcome to the Weather App{% endblock %}
+{% block subtitle %}
+<h2 class="hero-subtitle">Get instant weather updates for any city worldwide!</h2>
+{% endblock %}
+
 {% block content %}
-<h2>Welcome to the Weather App</h2>
-<div class="weather-update-box">
-    <p><strong>Get current weather updates for any city.</strong></p>
-</div><div class="features">
+<div class="features">
     <h2>Features</h2>
     <ul>
-        <li><i class="fa fa-cloud-sun"></i>  Real-time weather updates</li>
-        <li><i class="fa fa-calendar-alt"></i>  7-day forecasts</li>
-        <li><i class="fa fa-exclamation-triangle"></i>  Alerts for severe weather conditions</li>
+        <li><i class="feature-icon">🌡️</i> Real-time weather updates with precise temperature measurements</li>
+        <li><i class="feature-icon">📅</i> Detailed 5-day weather forecasts</li>
+        <li><i class="feature-icon">🌍</i> Interactive weather map with global coverage</li>
+        <li><i class="feature-icon">💨</i> Wind speed and humidity monitoring</li>
+        <li><i class="feature-icon">🌪️</i> Severe weather alerts and notifications</li>
+        <li><i class="feature-icon">💡</i> Smart weather tips and recommendations</li>
+        <li><i class="feature-icon">🏙️</i> City selection for locations with same names</li>
+        <li><i class="feature-icon">📊</i> Air Quality Index (AQI) monitoring</li>
+        <li><i class="feature-icon">🌓</i> Dark mode support for comfortable viewing</li>
+        <li><i class="feature-icon">📱</i> Responsive design for all devices</li>
+        <li><i class="feature-icon">🔍</i> Search history for quick access</li>
+        <li><i class="feature-icon">🌡️</i> Temperature unit conversion (°F/°C)</li>
     </ul>
 </div>
-
 {% endblock %}
