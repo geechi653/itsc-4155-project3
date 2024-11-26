@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 import requests
 from datetime import datetime
 from functools import wraps
@@ -20,6 +20,16 @@ def init_db():
                   city TEXT NOT NULL,
                   search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     conn.commit()
+    conn.close()
+
+
+def alter_db():
+    conn = sqlite3.connect('weather_history.db')
+    c = conn.cursor()
+    try:
+        c.execute('ALTER TABLE search_history MODIFY COLUMN city TEXT(255)')
+    except:
+        pass  # SQLite doesn't support ALTER COLUMN, but TEXT should already handle long strings
     conn.close()
 
 
@@ -132,17 +142,46 @@ def login():
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
-        city = request.form['city']
-        unit = request.form.get('unit', 'imperial')
-        weather_data = get_weather(city, unit)
+        if 'lat' in request.form and 'lon' in request.form:
+            lat = request.form['lat']
+            lon = request.form['lon']
+            city = request.form['city_name']
+            state = request.form.get('state', '')
+            country = request.form.get('country', '')
+            
+            formatted_city = format_city_name(city, state, country)
+            
+            unit = request.form.get('unit', 'imperial')
+            weather_data = get_weather_by_coords(lat, lon, unit)
+            
+            if weather_data is not None:
+                save_search(formatted_city)
+                history = get_search_history()
+                return render_template('search.html', weather=weather_data, city=formatted_city, unit=unit, history=history)
+        else:
+            city = request.form['city']
+            unit = request.form.get('unit', 'imperial')
+            cities = get_cities(city)
+            
+            if not cities:
+                history = get_search_history()
+                return render_template('search.html', error="City not found.", unit=unit, history=history)
+            
+            if len(cities) > 1:
+                return render_template('city_select.html', 
+                                    cities=cities, 
+                                    unit=unit,
+                                    redirect_url=url_for('search'))
+            
+            weather_data = get_weather(city, unit)
+
         if weather_data is not None:
-            save_search(city)  
-            history = get_search_history()  
+            save_search(city)
+            history = get_search_history()
             return render_template('search.html', weather=weather_data, city=city, unit=unit, history=history)
         else:
-            history = get_search_history()  
-            return render_template('search.html', city=city, error="City not found.", unit=unit, history=history)
-    
+            history = get_search_history()
+            return render_template('search.html', error="Weather data not available.", unit=unit, history=history)
 
     history = get_search_history()
     return render_template('search.html', unit=request.args.get('unit', 'imperial'), history=history)
@@ -150,10 +189,41 @@ def search():
 @app.route('/forecast', methods=['GET', 'POST'])
 def forecast():
     if request.method == 'POST':
-        city = request.form['city']
-        unit = request.form.get('unit', 'imperial')
-        forecast_data = get_five_day_forecast(city, unit)
-        return render_template('forecast.html', forecast=forecast_data, city=city, unit=unit)
+        if 'lat' in request.form and 'lon' in request.form:
+            lat = request.form['lat']
+            lon = request.form['lon']
+            city = request.form['city_name']
+            state = request.form.get('state', '')
+            country = request.form.get('country', '')
+            
+            formatted_city = format_city_name(city, state, country)
+            
+            unit = request.form.get('unit', 'imperial')
+            forecast_data = get_five_day_forecast_by_coords(lat, lon, unit)
+            
+            if forecast_data is not None:
+                return render_template('forecast.html', forecast=forecast_data, city=formatted_city, unit=unit)
+        else:
+            city = request.form['city']
+            unit = request.form.get('unit', 'imperial')
+            cities = get_cities(city)
+            
+            if not cities:
+                return render_template('forecast.html', error="City not found.", unit=unit)
+            
+            if len(cities) > 1:
+                return render_template('city_select.html', 
+                                    cities=cities, 
+                                    unit=unit,
+                                    redirect_url=url_for('forecast'))
+            
+            forecast_data = get_five_day_forecast(city, unit)
+
+        if forecast_data is not None:
+            return render_template('forecast.html', forecast=forecast_data, city=city, unit=unit)
+        else:
+            return render_template('forecast.html', error="Forecast data not available.", unit=unit)
+
     return render_template('forecast.html', unit=request.args.get('unit', 'imperial'))
 
 @app.route('/map')
@@ -302,6 +372,75 @@ def process_five_day_forecast(data, unit='imperial'):
 
     return forecast_summary
 
+def get_cities(city_name):
+    """Get list of cities matching the name."""
+    url = f'http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=5&appid={API_KEY}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"Error fetching cities: {e}")
+        return None
+
+def get_weather_by_coords(lat, lon, unit='imperial'):
+    """Get weather using coordinates."""
+    url = f'http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units={unit}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        if data.get('cod') != 200:
+            return None
+            
+        aqi_data = get_aqi(lat, lon)
+        weather_info = {
+            'temperature': data['main']['temp'],
+            'temp_min': data['main']['temp_min'],
+            'temp_max': data['main']['temp_max'],
+            'humidity': data['main']['humidity'],
+            'weather_desc': data['weather'][0]['description'],
+            'wind': data['wind'],
+            'icon': data['weather'][0]['icon'],
+            'unit': '°F' if unit == 'imperial' else '°C',
+            'aqi': aqi_data,
+            'tips': get_weather_tip(data['weather'][0]['description'], 
+                                  data['main']['temp'], 
+                                  data['main']['humidity'], 
+                                  data['wind']['speed'], 
+                                  unit),
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        return weather_info
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+def get_five_day_forecast_by_coords(lat, lon, unit='imperial'):
+    """Get 5-day weather forecast data using coordinates."""
+    url = f'http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units={unit}'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        if data.get('cod') != '200':
+            return None
+        forecast = process_five_day_forecast(data, unit)
+        return forecast
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+    return None
+
+def format_city_name(city, state, country):
+    """Format city name with state and country information."""
+    parts = [city]
+    if state:
+        parts.append(state)
+    if country:
+        parts.append(country)
+    return ", ".join(parts)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)

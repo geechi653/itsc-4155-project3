@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Select City - Weather App{% endblock %}
+{% block header %}Select City{% endblock %}
+{% block content %}
+<div class="city-select-container">
+    <h2>Multiple cities found</h2>
+    <p>Please select the specific city you're looking for:</p>
+    
+    <div class="city-list">
+        {% for city in cities %}
+        <form method="POST" action="{{ redirect_url }}">
+            <input type="hidden" name="lat" value="{{ city.lat }}">
+            <input type="hidden" name="lon" value="{{ city.lon }}">
+            <input type="hidden" name="city_name" value="{{ city.name }}">
+            <input type="hidden" name="state" value="{{ city.state }}">
+            <input type="hidden" name="country" value="{{ city.country }}">
+            <input type="hidden" name="unit" value="{{ unit }}">
+            <button type="submit" class="city-select-btn">
+                <div class="city-info">
+                    <span class="city-name">{{ city.name }}</span>
+                    {% if city.state %}
+                        <span class="city-state">{{ city.state }}</span>
+                    {% endif %}
+                    <span class="city-country">{{ city.country }}</span>
+                </div>
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

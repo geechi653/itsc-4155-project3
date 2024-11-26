@@ -20,6 +20,9 @@
                 <label><input type="radio" name="globalUnit" value="imperial" {% if unit == 'imperial' %}checked{% endif %}> °F</label>
                 <label><input type="radio" name="globalUnit" value="metric" {% if unit == 'metric' %}checked{% endif %}> °C</label>
             </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span class="theme-icon">🌓</span>
+            </button>
         </ul>
     </nav>
 
@@ -41,9 +44,17 @@
     </footer>
 
     <script>
-        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
         let globalUnit = localStorage.getItem('weatherUnit') || 'imperial';
-        
         
         document.querySelectorAll('input[name="globalUnit"]').forEach(radio => {
             if(radio.value === globalUnit) {
@@ -53,14 +64,12 @@
                 globalUnit = this.value;
                 localStorage.setItem('weatherUnit', globalUnit);
                 
-                
                 let url = new URL(window.location.href);
                 url.searchParams.set('unit', globalUnit);
                 window.location.href = url.toString();
             });
         });
 
-        
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 const unitInput = document.createElement('input');
@@ -72,4 +81,4 @@
         });
     </script>
 </body>
-</html
+</html>
