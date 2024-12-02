@@ -5,6 +5,12 @@
 {% endblock %}
 
 {% block content %}
+
+{% if user_first_name %}
+    <h2>Welcome, {{ user_first_name }}!</h2>
+{% else %}
+    <h2>Welcome to our site! Please <a href="{{ url_for('login') }}">log in</a> or <a href="{{ url_for('signup') }}">sign up</a>.</h2>
+{% endif %}
 <div class="features">
     <h2>Features</h2>
     <ul>

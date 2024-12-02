@@ -496,124 +496,136 @@ footer {
     margin: 5px 0;
 }
 
+/* Authentication Start */
+
 .auth-links {
     float: right;
     margin: 0 20px;
     color: white;
     padding: 3px;
+ }
+
+ .auth-links {
+   font-size: 18px;
+   font-weight: bold;
+   color: #ffffff;
+   background-color: rgba(0, 0, 0, 0.3);
+   padding: 8px 16px;
+   border-radius: 5px;
+   text-decoration: none;
 }
 
-.login-container {
-    background: var(--card-bg);
-    padding: 2rem;
-    width: 320px;
-    border-radius: 25px;
-    box-shadow: 0 8px 20px var(--shadow-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+
+.auth-links:hover {
+   background-color: rgba(255, 255, 255, 0.2);
+   color: #ffffff;
+   text-decoration: underline;
 }
+
+ 
 
 .login-form {
-    width: 100%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    width: 350px;
+    text-align: center;
 }
+
 
 .login-form h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: var(--text-color);
-    font-weight: 600;
+    font-size: 24px;
+    color: #2d3436;
+    margin-bottom: 20px;
 }
 
+
 .input-group {
-    margin-bottom: 1.5rem;
-    width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 14px;
+    color: #636e72;
+    margin-bottom: 5px;
+    display: block;
 }
 
 .input-group input {
     width: 100%;
-    padding: 0.75rem;
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    outline: none;
-    font-size: 1rem;
-    transition: border-color 0.2s ease-in-out;
+    padding: 10px;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #f9f9f9;
+    box-sizing: border-box;
+    transition: border 0.3s ease;
 }
 
 .input-group input:focus {
-    border-color: #1e90ff;
+    border-color: #74b9ff;
+    outline: none;
 }
 
-.login-button button {
+
+
+.signup-form input[type="text"]{
     width: 100%;
-    max-width: 260px;
-    padding: 0.75rem;
-    background-color: #1e90ff;
-    color: #fff;
+    color: black;
+    padding: 10px;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #f9f9f9;
+    box-sizing: border-box;
+    transition: border 0.3s ease;
+}
+
+
+.login-button .auth-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    color: white;
+    background: #0984e3;
     border: none;
-    border-radius: 25px;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-    transition: background-color 0.3s ease, transform 0.1s ease-in-out;
-    margin: 0 auto;
-    display: block;
+    transition: background 0.3s ease;
 }
 
-.login-button button:hover {
-    background-color: #0066cc;
+.login-button .auth-button:hover {
+    background: #74b9ff;
 }
 
-.login-button button:active {
-    transform: scale(0.98);
+
+.login-form p {
+    font-size: 14px;
+    color: #636e72;
 }
 
-.auth-links {
-    font-size: 18px;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 8px 16px;
-    border-radius: 5px;
+.login-form a {
+    color: #0984e3;
     text-decoration: none;
+    font-weight: bold;
 }
 
-.auth-links:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+.login-container a:hover {
     text-decoration: underline;
 }
 
 .signup-form {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    padding: 30px;
     width: 350px;
-    padding: 20px;
-    background-color: var(--card-bg);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px var(--shadow-color);
     text-align: center;
 }
 
-.signup-form h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-}
-
-.auth-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.auth-button:hover {
-    background-color: #0056b3;
-}
+/* Authentication end */
 
 .theme-toggle {
     position: static;

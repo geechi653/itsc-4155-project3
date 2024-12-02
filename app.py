@@ -7,10 +7,11 @@ from collections import defaultdict
 from flask import session
 import sqlite3
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import redirect, flash
 
 app = Flask(__name__)
 app.secret_key = 'ee7ea1ebacf0f523ae4b3c285a59b34e'
-
 
 def init_db():
     conn = sqlite3.connect('weather_history.db')
@@ -19,6 +20,15 @@ def init_db():
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   city TEXT NOT NULL,
                   search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    
+
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  first_name TEXT NOT NULL,
+                  last_name TEXT NOT NULL,
+                  email TEXT UNIQUE NOT NULL,
+                  phone_number TEXT,
+                  password_hash TEXT NOT NULL)''')
     conn.commit()
     conn.close()
 
@@ -124,23 +134,83 @@ def internal_server_error(e):
 
 @app.route('/')
 def home():
-    unit = request.args.get('unit', 'imperial')
-    return render_template('home.html', unit=unit)
+    user_first_name = None
+    logged_in = 0
+    if 'user_id' in session:
+        conn = sqlite3.connect('weather_history.db')
+        c = conn.cursor()
+        c.execute('SELECT first_name FROM users WHERE id = ?', (session['user_id'],))
+        user = c.fetchone()
+        conn.close()
+
+        if user:
+            user_first_name = user[0]
+            logged_in = 1
+
+    return render_template('home.html', user_first_name=user_first_name, logged_in=logged_in)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
     if request.method == 'POST':
-        return render_template('home.html')
+        first_name = request.form['first-name']
+        last_name = request.form['last-name']
+        email = request.form['email']
+        phone_number = request.form['phone-number']
+        password = request.form['password']
+
+        password_hash = generate_password_hash(password)
+
+        try:
+            conn = sqlite3.connect('weather_history.db')
+            c = conn.cursor()
+            c.execute('INSERT INTO users (first_name, last_name, email, phone_number, password_hash) VALUES (?, ?, ?, ?, ?)',
+                      (first_name, last_name, email, phone_number, password_hash))
+            conn.commit()
+            conn.close()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except sqlite3.IntegrityError:
+            flash('Email already registered. Please log in.', 'error')
+            return redirect(url_for('signup'))
+
     return render_template('signup.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    logged_in = 0
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('home'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    logged_in = 0
     if request.method == 'POST':
-        return render_template('home.html')
-    return render_template('login.html')
+        email = request.form['username']
+        password = request.form['password']
+
+        conn = sqlite3.connect('weather_history.db')
+        c = conn.cursor()
+        c.execute('SELECT id, password_hash FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+        conn.close()
+
+        if user and check_password_hash(user[1], password):
+            session['user_id'] = user[0]
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+            logged_in = 1
+        else:
+            flash('Invalid email or password. Please try again.', 'error')
+
+    return render_template('login.html', logged_in=logged_in)
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    logged_in = 0
+    if 'user_id' in session:
+        logged_in = 1
+
     if request.method == 'POST':
         if 'lat' in request.form and 'lon' in request.form:
             lat = request.form['lat']
@@ -184,10 +254,14 @@ def search():
             return render_template('search.html', error="Weather data not available.", unit=unit, history=history)
 
     history = get_search_history()
-    return render_template('search.html', unit=request.args.get('unit', 'imperial'), history=history)
+    return render_template('search.html', unit=request.args.get('unit', 'imperial'), history=history, logged_in=logged_in)
 
 @app.route('/forecast', methods=['GET', 'POST'])
 def forecast():
+    logged_in = 0
+    if 'user_id' in session:
+        logged_in = 1
+
     if request.method == 'POST':
         if 'lat' in request.form and 'lon' in request.form:
             lat = request.form['lat']
@@ -224,12 +298,17 @@ def forecast():
         else:
             return render_template('forecast.html', error="Forecast data not available.", unit=unit)
 
-    return render_template('forecast.html', unit=request.args.get('unit', 'imperial'))
+    return render_template('forecast.html', unit=request.args.get('unit', 'imperial'), logged_in=logged_in)
 
 @app.route('/map')
 def map():
+
+    logged_in = 0
+    if 'user_id' in session:
+        logged_in = 1
+
     unit = request.args.get('unit', 'imperial')
-    return render_template('map.html', unit=unit)
+    return render_template('map.html', unit=unit, logged_in=logged_in)
 
 @app.route('/get_temperature_data')
 @rate_limit()

@@ -10,7 +10,11 @@
     <nav>
         <ul>
             <div class="auth-links">
-                <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% if logged_in: %}
+                    <li><a href="{{ url_for('logout') }}">Signout</a></li>
+                {% else: %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
             </div>
             <li><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('search') }}">Search</a></li>
