@@ -19,8 +19,9 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS search_history
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   city TEXT NOT NULL,
-                  search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    
+                  user_id INTEGER NOT NULL,
+                  search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  FOREIGN KEY(user_id) REFERENCES users(id))''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS users
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,16 +48,28 @@ init_db()
 
 
 def save_search(city):
+    if 'user_id' not in session:
+        return  # Only save searches for logged-in users
+
+    user_id = session['user_id']
     conn = sqlite3.connect('weather_history.db')
     c = conn.cursor()
-    c.execute('INSERT INTO search_history (city) VALUES (?)', (city,))
+    c.execute('INSERT INTO search_history (city, user_id) VALUES (?, ?)', (city, user_id))
     conn.commit()
     conn.close()
 
 def get_search_history():
+    if 'user_id' not in session:
+        return []  # No history for non-logged-in users
+
+    user_id = session['user_id']
     conn = sqlite3.connect('weather_history.db')
     c = conn.cursor()
-    c.execute('SELECT DISTINCT city, MAX(search_date) FROM search_history GROUP BY city ORDER BY search_date DESC LIMIT 5')
+    c.execute('''SELECT city, MAX(search_date) 
+                 FROM search_history 
+                 WHERE user_id = ? 
+                 GROUP BY city 
+                 ORDER BY search_date DESC LIMIT 5''', (user_id,))
     history = c.fetchall()
     conn.close()
     return history
@@ -207,55 +220,54 @@ def login():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    logged_in = 0
-    if 'user_id' in session:
-        logged_in = 1
+    logged_in = 'user_id' in session
 
     if request.method == 'POST':
         if 'lat' in request.form and 'lon' in request.form:
+            # Process search by coordinates
             lat = request.form['lat']
             lon = request.form['lon']
             city = request.form['city_name']
             state = request.form.get('state', '')
             country = request.form.get('country', '')
-            
+
             formatted_city = format_city_name(city, state, country)
-            
             unit = request.form.get('unit', 'imperial')
             weather_data = get_weather_by_coords(lat, lon, unit)
-            
+
             if weather_data is not None:
                 save_search(formatted_city)
                 history = get_search_history()
                 return render_template('search.html', weather=weather_data, city=formatted_city, unit=unit, history=history)
+
         else:
+            # Process search by city name
             city = request.form['city']
             unit = request.form.get('unit', 'imperial')
             cities = get_cities(city)
-            
+
             if not cities:
                 history = get_search_history()
                 return render_template('search.html', error="City not found.", unit=unit, history=history)
-            
+
             if len(cities) > 1:
                 return render_template('city_select.html', 
-                                    cities=cities, 
-                                    unit=unit,
-                                    redirect_url=url_for('search'))
-            
+                                       cities=cities, 
+                                       unit=unit,
+                                       redirect_url=url_for('search'))
+
             weather_data = get_weather(city, unit)
 
-        if weather_data is not None:
-            save_search(city)
-            history = get_search_history()
-            return render_template('search.html', weather=weather_data, city=city, unit=unit, history=history)
-        else:
-            history = get_search_history()
-            return render_template('search.html', error="Weather data not available.", unit=unit, history=history)
+            if weather_data is not None:
+                save_search(city)
+                history = get_search_history()
+                return render_template('search.html', weather=weather_data, city=city, unit=unit, history=history)
+            else:
+                history = get_search_history()
+                return render_template('search.html', error="Weather data not available.", unit=unit, history=history)
 
     history = get_search_history()
     return render_template('search.html', unit=request.args.get('unit', 'imperial'), history=history, logged_in=logged_in)
-
 @app.route('/forecast', methods=['GET', 'POST'])
 def forecast():
     logged_in = 0
