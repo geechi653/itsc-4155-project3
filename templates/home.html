@@ -5,17 +5,11 @@
 {% endblock %}
 
 {% block content %}
-
-{% if user_first_name %}
-    <h2>Welcome, {{ user_first_name }}!</h2>
-{% else %}
-    <h2>Welcome to our site! Please <a href="{{ url_for('login') }}">log in</a> or <a href="{{ url_for('signup') }}">sign up</a>.</h2>
-{% endif %}
 <div class="features">
     <h2>Features</h2>
     <ul>
         <li><i class="feature-icon">🌡️</i> Real-time weather updates with precise temperature measurements</li>
-        <li><i class="feature-icon">📅</i> Detailed 5-day weather forecasts</li>
+        <li><i class="feature-icon">📅</i> Detailed 6-day weather forecasts</li>
         <li><i class="feature-icon">🌍</i> Interactive weather map with global coverage</li>
         <li><i class="feature-icon">💨</i> Wind speed and humidity monitoring</li>
         <li><i class="feature-icon">🌪️</i> Severe weather alerts and notifications</li>
