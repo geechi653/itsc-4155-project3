@@ -113,13 +113,14 @@ h1, h2, h3 {
 }
 
 .leaflet-popup-content {
-    color: #333;
+    color: #333 !important;
     font-weight: 500;
     min-width: 200px;
     margin: 10px;
 }
 
 .leaflet-popup-content h3 {
+    color: #333 !important;
     margin: 0 0 10px 0;
     font-size: 1.2em;
     text-align: center;
