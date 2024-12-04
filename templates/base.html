@@ -4,14 +4,13 @@
     <title>{% block title %}Weather App{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     {% block head %}{% endblock %}
 </head>
 <body>
     <nav>
         <ul>
-            <div class="auth-links">
-                <li><a href="{{ url_for('login') }}">Login</a></li>
-            </div>
             <li><a href="{{ url_for('home') }}">Home</a></li>
             <li><a href="{{ url_for('search') }}">Search</a></li>
             <li><a href="{{ url_for('forecast') }}">Forecast</a></li>
@@ -25,6 +24,28 @@
             </button>
         </ul>
     </nav>
+
+    <div class="location-widget" id="locationWidget">
+        <span class="location-icon">📍</span>
+        <div class="location-info">
+            <span class="location-name">Loading...</span>
+            <span class="location-temp"></span>
+        </div>
+        <div class="location-details" id="locationDetails">
+            <div class="detail-row">
+                <span class="detail-label">Wind Speed:</span>
+                <span class="wind-speed">--</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Humidity:</span>
+                <span class="humidity">--</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Feels Like:</span>
+                <span class="feels-like">--</span>
+            </div>
+        </div>
+    </div>
 
     <div class="hero">
         <div class="hero-content">
@@ -79,6 +100,106 @@
                 this.appendChild(unitInput);
             });
         });
+
+        const locationWidget = document.getElementById('locationWidget');
+        const locationDetails = document.getElementById('locationDetails');
+        let isWidgetExpanded = false;
+
+        function updateLocationWidget(weatherData) {
+            const unit = document.querySelector('input[name="globalUnit"]:checked').value;
+            const temp = weatherData.temperature;
+            const unitSymbol = unit === 'imperial' ? '°F' : '°C';
+            const speedUnit = unit === 'imperial' ? 'mph' : 'm/s';
+            
+            locationWidget.querySelector('.location-name').textContent = weatherData.location_name;
+            locationWidget.querySelector('.location-temp').textContent = `${Math.round(temp)}${unitSymbol}`;
+            
+            // Update details section
+            locationWidget.querySelector('.wind-speed').textContent = `${weatherData.wind.speed} ${speedUnit}`;
+            locationWidget.querySelector('.humidity').textContent = `${weatherData.humidity}%`;
+            locationWidget.querySelector('.feels-like').textContent = `${Math.round(weatherData.feels_like)}${unitSymbol}`;
+            
+            // Add this line to update the background based on weather
+            updateHeroBackground(weatherData.description);
+        }
+
+        function handleLocationError(error) {
+            console.error('Error getting location:', error);
+            locationWidget.querySelector('.location-name').textContent = 'Location unavailable';
+            locationWidget.querySelector('.location-temp').textContent = '--';
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        fetch(`/get_temperature_data?lat=${position.coords.latitude}&lon=${position.coords.longitude}&unit=${globalUnit}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error) {
+                                    throw new Error(data.error);
+                                }
+                                updateLocationWidget(data);
+                            })
+                            .catch(handleLocationError);
+                    },
+                    handleLocationError
+                );
+            } else {
+                handleLocationError(new Error('Geolocation is not supported'));
+            }
+        }
+
+        // Toggle details on widget click
+        locationWidget.addEventListener('click', () => {
+            isWidgetExpanded = !isWidgetExpanded;
+            locationWidget.classList.toggle('location-widget-expanded');
+            locationDetails.classList.toggle('show');
+        });
+
+        // Get location on page load
+        document.addEventListener('DOMContentLoaded', getLocation);
+
+        // Update when unit changes
+        document.querySelectorAll('input[name="globalUnit"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                getLocation(); // Refresh the widget with new unit
+            });
+        });
+
+        // Function to update hero background
+        async function updateHeroBackground() {
+            const now = new Date().getTime();
+            const lastUpdate = localStorage.getItem('lastBackgroundUpdate');
+            const cachedImageUrl = localStorage.getItem('backgroundImageUrl');
+            const updateInterval = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+            // If we have a cached image and it's less than 10 minutes old, use it
+            if (cachedImageUrl && lastUpdate && (now - lastUpdate) < updateInterval) {
+                document.documentElement.style.setProperty('--hero-bg', `url('${cachedImageUrl}')`);
+                return;
+            }
+
+            // If we need a new image
+            const timestamp = new Date().getTime();
+            const imageUrl = `https://picsum.photos/1600/900?nature&t=${timestamp}`;
+            
+            // Create a new image object to preload
+            const img = new Image();
+            img.src = imageUrl;
+            
+            img.onload = function() {
+                document.documentElement.style.setProperty('--hero-bg', `url('${imageUrl}')`);
+                localStorage.setItem('backgroundImageUrl', imageUrl);
+                localStorage.setItem('lastBackgroundUpdate', now.toString());
+            };
+        }
+
+        // Initial background update
+        updateHeroBackground();
+
+        // Update background every 10 minutes
+        setInterval(updateHeroBackground, 10 * 60 * 1000);
     </script>
 </body>
 </html>

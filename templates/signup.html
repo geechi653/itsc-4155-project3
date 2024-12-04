@@ -1,31 +1,42 @@
 {% extends 'base.html' %}
-{% block title %}Search - Weather App{% endblock %}
-{% block header %}Search Weather{% endblock %}
-{% block content %}
+{% block title %}Sign Up - Weather App{% endblock %}
 
-<h2>Weather App Signup</h2>
-        <form class="signup-form">
-            <div class="input-group">
-                <label for="first-name">First Name</label>
-                <input type="text" id="first-name" placeholder="First Name" required>
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h2>Sign Up</h2>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+        <form method="post" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
             </div>
-            <div class="input-group">
-                <label for="last-name">Last Name</label>
-                <input type="text" id="last-name" placeholder="Last Name" required>
-            </div>
-            <div class="input-group">
+            <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Email" required>
+                <input type="email" id="email" name="email" required>
             </div>
-            <div class="input-group">
-                <label for="phone-number">Phone Number</label>
-                <input type="tel" id="phone-number" placeholder="Phone Number" required>
-            </div>
-            <div class="input-group">
+            <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Password" required>
+                <input type="password" id="password" name="password" required>
             </div>
-            <button class="auth-button" type="submit">Sign Up</button>
-            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <div class="form-group">
+                <label>Preferred Temperature Unit</label>
+                <div class="radio-group">
+                    <input type="radio" id="imperial" name="preferred_unit" value="imperial" checked>
+                    <label for="imperial">Fahrenheit (°F)</label>
+                    <input type="radio" id="metric" name="preferred_unit" value="metric">
+                    <label for="metric">Celsius (°C)</label>
+                </div>
+            </div>
+            <button type="submit" class="auth-button">Sign Up</button>
         </form>
+        <p class="auth-link">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+</div>
 {% endblock %}

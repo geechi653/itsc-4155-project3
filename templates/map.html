@@ -39,12 +39,17 @@
                     .addTo(map)
                     .bindPopup(`
                         <div style="text-align: center;">
-                            <img src="http://openweathermap.org/img/w/${data.icon}.png" alt="Weather icon"><br>
-                            Temperature: ${data.temperature}${unitSymbol}<br>
-                            ${data.description}
+                            <h3>${data.location_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`}</h3>
+                            <i class="fas ${data.icon_class || 'fa-question'} fa-2x" style="color: #1a75ff;"></i>
+                            <p style="color: #1a75ff; font-weight: bold;">Temperature: ${data.temperature}${unitSymbol}</p>
+                            <p style="text-transform: capitalize;">${data.description}</p>
+                            <p>Humidity: ${data.humidity}%</p>
+                            <p>Wind: ${data.wind.speed} m/s</p>
                         </div>
                     `)
                     .openPopup();
+
+                console.log('Location data:', data.location_name);
             })
             .catch(error => console.error('Error:', error));
     });
@@ -59,7 +64,7 @@
                         const unitSymbol = this.value === 'imperial' ? '°F' : '°C';
                         marker.setPopupContent(`
                             <div style="text-align: center;">
-                                <img src="http://openweathermap.org/img/w/${data.icon}.png" alt="Weather icon"><br>
+                                <img src="https://openweathermap.org/img/wn/${data.icon}@2x.png" alt="Weather icon"><br>
                                 Temperature: ${data.temperature}${unitSymbol}<br>
                                 ${data.description}
                             </div>

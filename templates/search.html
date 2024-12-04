@@ -15,7 +15,7 @@
     {% if weather %}
         <div class="weather-info">
             <div class="weather-header">
-                <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="Weather icon" class="weather-icon">
+                <i class="fas {{ weather.icon_class|default('fa-question') }} fa-3x" style="color: #1a75ff;"></i>
                 <h2>{{ city }}</h2>
             </div>
             
