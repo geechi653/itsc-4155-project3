@@ -114,12 +114,12 @@
             locationWidget.querySelector('.location-name').textContent = weatherData.location_name;
             locationWidget.querySelector('.location-temp').textContent = `${Math.round(temp)}${unitSymbol}`;
             
-            // Update details section
+            // update details section
             locationWidget.querySelector('.wind-speed').textContent = `${weatherData.wind.speed} ${speedUnit}`;
             locationWidget.querySelector('.humidity').textContent = `${weatherData.humidity}%`;
             locationWidget.querySelector('.feels-like').textContent = `${Math.round(weatherData.feels_like)}${unitSymbol}`;
             
-            // Add this line to update the background based on weather
+           
             updateHeroBackground(weatherData.description);
         }
 
@@ -150,7 +150,7 @@
             }
         }
 
-        // Toggle details on widget click
+        // toggle details on widget click
         locationWidget.addEventListener('click', () => {
             isWidgetExpanded = !isWidgetExpanded;
             locationWidget.classList.toggle('location-widget-expanded');
