@@ -282,7 +282,7 @@ def get_temperature_data():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
+        
 def get_aqi(lat, lon):
     """Fetch AQI data using latitude and longitude."""
     url = f'http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API_KEY}'
@@ -380,7 +380,7 @@ def process_five_day_forecast(data, unit='imperial'):
             'clear': 1
         }
         
-        
+    
         max_priority = -1
         common_description = None
         common_icon = None
