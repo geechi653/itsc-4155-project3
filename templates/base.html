@@ -14,10 +14,26 @@
             <div class="auth-links">
                 <li><a href="{{ url_for('login') }}">Login</a></li>
             </div>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('search') }}">Search</a></li>
-            <li><a href="{{ url_for('forecast') }}">Forecast</a></li>
-            <li><a href="{{ url_for('map') }}">Map</a></li>
+            <li>
+                <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('search') }}" class="{% if request.endpoint == 'search' %}active{% endif %}">
+                    Search
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('forecast') }}" class="{% if request.endpoint == 'forecast' %}active{% endif %}">
+                    Forecast
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('map') }}" class="{% if request.endpoint == 'map' %}active{% endif %}">
+                    Map
+                </a>
+            </li>
             <div class="unit-toggle">
                 <label><input type="radio" name="globalUnit" value="imperial" {% if unit == 'imperial' %}checked{% endif %}> °F</label>
                 <label><input type="radio" name="globalUnit" value="metric" {% if unit == 'metric' %}checked{% endif %}> °C</label>

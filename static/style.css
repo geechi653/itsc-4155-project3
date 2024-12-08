@@ -513,6 +513,21 @@ footer {
     padding: 3px;
 }
 
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    padding: 10px;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+nav ul li a.active {
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #666;
+    border-radius: 4px;
+}
+
+
 .login-container {
     background: var(--card-bg);
     padding: 2rem;
