@@ -1,29 +1,53 @@
 # itsc-4155-project3
-Weather Forecasting Tool
-Project Overview
+Weather Forecasting Application
 
-The Weather Forecasting Tool is a web application that provides real-time weather updates and short-term forecasts using data from APIs like OpenWeatherMap. This app offers an intuitive interface where users can search for current weather conditions in any location. The tool is built with Python, Flask, MongoDB, HTML, and CSS, and also includes mobile app development support for better accessibility.
+## Project Overview
 
-Features
-Real-time weather updates for any city or location
-Short-term weather forecasts
-User-friendly interface
-Data is stored in MongoDB
-Cross-platform support for mobile applications
+A comprehensive weather application that provides real-time weather data and forecasts through an interactive interface. Built with Python/Flask and integrated with OpenWeatherMap API, this application offers detailed weather information, interactive maps, and personalized weather tips.
 
-Setup Instructions:
+## Features
+- Real-time weather data for any city worldwide
+- 5-day weather forecasts
+- Interactive temperature map
+- Air Quality Index (AQI) monitoring
+- Smart weather tips based on conditions
+- Temperature unit conversion (°F/°C)
+- Dark/Light theme support
+- Search history tracking
+- Mobile-responsive design
 
+## Technical Stack
+- Backend: Python/Flask
+- Database: SQLite
+- API: OpenWeatherMap
+- Frontend: HTML, CSS, JavaScript
+- Maps: Leaflet.js
+- Weather Icons: OpenWeatherMap Icons
 
-Prerequisites:
+## Setup Instructions:
 
-Python 3.8 or higher
-MongoDB (or access to MongoDB Atlas)
-OpenWeatherMap API Key
-Flask
+### Prerequisites:
+- Python 3.8 or higher
+- SQLite database
+- OpenWeatherMap API Key
+- Flask and required Python packages (specified in requirements.txt)
 
-Usage Details:
+### Usage Details:
+1. Enter a city name in the search bar
+2. View current weather conditions including:
+   - Temperature
+   - Humidity
+   - Wind speed
+   - Weather description
+   - Air Quality Index
+3. Access the 5-day forecast
+4. Use the interactive map to check temperatures worldwide
+5. Toggle between Fahrenheit and Celsius
+6. Switch between light and dark themes
 
-Open the application in your browser.
-Enter the city or location name in the search bar.
-Click on the search button to get real-time weather data and short-term forecasts.
-The app will display temperature, humidity, wind speed, and general weather conditions
+## Features In Detail:
+- **Smart Weather Tips**: Contextual advice based on current weather conditions
+- **Interactive Map**: Click anywhere to see local temperature
+- **Multiple City Support**: Precise city selection when multiple matches exist
+- **Search History**: Quick access to recently searched locations
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
